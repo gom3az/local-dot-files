@@ -3,7 +3,6 @@
 # =========================================
 export JAVA_HOME=/opt/android-studio/jbr
 export PATH="$JAVA_HOME/bin:$HOME/.local/bin:$HOME/bin:/home/test/.opencode/bin:/opt/gradle/gradle-9.2.0/bin:/opt/intellij/bin:$HOME/.npm-global/bin:$PATH"
-export MINIMAX_API_KEY="sk-cp-5qCUnlAGHw3Dv7F0VetbqGNhUndlrQwaorJ08QEbyiiJyCUP0oADKiOBZqG9k-_SpLRWOdAtj3662T6btp2WlmQmEUyjzbfArb-gHk8I3LR4gHjROfB0A1Y"
 export EDITOR=nvim
 export VISUAL=nvim
 
