@@ -1,0 +1,40 @@
+@import "theme.rasi"
+
+mainbox {
+    children: [listview];
+}
+
+window {
+    width: 600px;
+    height: 60px;
+}
+
+listview {
+    columns: 5;
+    lines: 1;
+    spacing: 10px;
+    padding: 10px;
+    fixed-columns: true;
+    fixed-lines: true;
+    fixed-height: true;
+    dynamic: false;
+}
+
+element {
+    padding: 8px 0;
+    text-color: @normal-foreground;
+}
+
+element selected {
+    background-color: @selected-normal-background;
+    text-color: @selected-normal-foreground;
+}
+
+element-icon {
+    enabled: false;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}

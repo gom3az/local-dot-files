@@ -1,0 +1,23 @@
+@import "theme.rasi"
+
+window {
+    width: 450px;
+}
+
+mainbox {
+    children: [inputbar];
+}
+
+listview {
+    enabled: false;
+}
+
+inputbar {
+    padding: 10px 14px;
+    children: [prompt, entry];
+}
+
+entry {
+    placeholder: "Enter password...";
+    placeholder-color: @overlay0;
+}

@@ -1,0 +1,21 @@
+# Color Override Example
+# =====================
+# Copy this file to global.json and edit the values to override
+# colors generated from your wallpaper.
+#
+# Format: "color_name": "#hexvalue"
+# The # prefix is optional.
+#
+# Available color names:
+# background, foreground, cursor
+# crust, mantle, base, surface0, surface1, surface2
+# overlay0, overlay1, overlay2, subtext0, subtext1, text
+# red, maroon, peach, yellow, green, teal, sky
+# sapphire, blue, mauve, pink, lavender
+# color0 through color15 (raw extracted palette)
+#
+# Example:
+# {
+#     "mauve": "#cba6f7",
+#     "blue": "#89b4fa"
+# }

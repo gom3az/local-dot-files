@@ -1,0 +1,152 @@
+@import "theme.css";
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 12px;
+    min-height: 0;
+    font-weight: normal;
+    border-radius: 0px;
+}
+
+window#waybar {
+    background: transparent;
+}
+
+/* ---------- Module Boxes ---------- */
+#workspaces {
+    background-color: @surface0;
+    padding: 0px 6px;
+    margin: 4px;
+    border-bottom: 2px solid @mauve;
+}
+
+#clock {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @pink;
+}
+
+#pulseaudio {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @blue;
+}
+
+#network {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @yellow;
+}
+
+#battery {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @green;
+}
+
+#tray {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 8px;
+    margin: 4px;
+    border-bottom: 2px solid @overlay1;
+}
+
+/* ---------- Network speed ---------- */
+#custom-net-speed {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @sapphire;
+}
+
+/* ---------- Recording indicator ---------- */
+#custom-recording {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @red;
+}
+
+/* ---------- Power group (combined) ---------- */
+#power-profiles-daemon {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 8px 0px 10px;
+    margin: 4px 0px 4px 4px;
+    border-bottom: 2px solid @teal;
+}
+
+#custom-power {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px 0px 8px;
+    margin: 4px 4px 4px 0px;
+    border-bottom: 2px solid @teal;
+}
+
+#workspaces button {
+    color: @text;
+    padding: 0px 6px;
+    margin: 0px 2px;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+}
+
+#workspaces button.active {
+    background: alpha(@mauve, 0.25);
+    color: @mauve;
+}
+
+#workspaces button:hover {
+    background: alpha(@mauve, 0.15);
+}
+
+#workspaces button.urgent {
+    background: alpha(@red, 0.3);
+    color: @red;
+}
+
+/* ---------- Window title ---------- */
+#window {
+    color: @text;
+    margin: 4px;
+    padding: 0px 10px;
+    background-color: @surface0;
+    border-bottom: 2px solid @overlay1;
+}
+
+window#waybar.empty #window {
+    background-color: transparent;
+    border: none;
+}
+
+/* ---------- Tooltips ---------- */
+tooltip {
+    background-color: @base;
+    border: 1px solid @surface1;
+}
+
+tooltip label {
+    color: @text;
+}
+
+/* ---------- Tray ---------- */
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}

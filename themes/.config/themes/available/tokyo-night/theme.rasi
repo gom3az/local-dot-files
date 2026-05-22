@@ -1,0 +1,36 @@
+/* Static theme: tokyo-night */
+* {
+    background: #1a1b26;
+    foreground: #a9b1d6;
+    background-color: #1a1b26;
+    border-color: #1a1b26;
+    separatorcolor: #1a1b26;
+    normal-foreground: #a9b1d6;
+    normal-background: #24283b;
+    selected-normal-foreground: #bb9af7;
+    selected-normal-background: #2f3346;
+    alternate-normal-foreground: #a9b1d6;
+    alternate-normal-background: #24283b;
+    overlay0: #565f89;
+    overlay1: #6a7391;
+    overlay2: #7b83a2;
+    surface0: #24283b;
+    surface1: #2f3346;
+    surface2: #414868;
+    subtext0: #8b93b3;
+    subtext1: #9aa5ce;
+    urgent-foreground: #f7768e;
+    urgent-background: #24283b;
+    selected-urgent-foreground: #bb9af7;
+    selected-urgent-background: #2f3346;
+    active-foreground: #9ece6a;
+    active-background: #24283b;
+    selected-active-foreground: #bb9af7;
+    selected-active-background: #2f3346;
+    font: "JetBrainsMono Nerd Font 14px";
+    spacing: 4;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}

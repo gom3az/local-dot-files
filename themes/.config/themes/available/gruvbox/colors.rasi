@@ -1,0 +1,36 @@
+/* Static theme: gruvbox */
+* {
+    background: #282828;
+    foreground: #ebdbb2;
+    background-color: #282828;
+    border-color: #282828;
+    separatorcolor: #282828;
+    normal-foreground: #ebdbb2;
+    normal-background: #3c3836;
+    selected-normal-foreground: #b16286;
+    selected-normal-background: #504945;
+    alternate-normal-foreground: #ebdbb2;
+    alternate-normal-background: #3c3836;
+    overlay0: #7c6f64;
+    overlay1: #928374;
+    overlay2: #a89984;
+    surface0: #3c3836;
+    surface1: #504945;
+    surface2: #665c54;
+    subtext0: #bdae93;
+    subtext1: #d5c4a1;
+    urgent-foreground: #cc241d;
+    urgent-background: #3c3836;
+    selected-urgent-foreground: #b16286;
+    selected-urgent-background: #504945;
+    active-foreground: #98971a;
+    active-background: #3c3836;
+    selected-active-foreground: #b16286;
+    selected-active-background: #504945;
+    font: "JetBrainsMono Nerd Font 12px";
+    spacing: 4;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}

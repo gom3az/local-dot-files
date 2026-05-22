@@ -1,0 +1,29 @@
+@import "theme.rasi"
+
+window {
+    width: 500px;
+    height: 400px;
+}
+
+mainbox {
+    children: [listview];
+}
+
+listview {
+    columns: 1;
+    lines: 12;
+    spacing: 5px;
+    padding: 8px;
+    fixed-height: false;
+    dynamic: true;
+    scrollbar: false;
+    layout: vertical;
+}
+
+element {
+    padding: 6px 10px;
+}
+
+element-icon {
+    enabled: false;
+}

@@ -1,0 +1,97 @@
+@import "colors.rasi"
+
+window {
+    background-color: @background;
+    border: 0;
+    padding: 0;
+    location: center;
+    anchor: center;
+    fullscreen: false;
+    x-offset: 0;
+    y-offset: 0;
+    cursor: "default";
+    width: 700px;
+}
+
+mainbox {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    children: [inputbar, listview];
+    orientation: vertical;
+}
+
+inputbar {
+    background-color: @normal-background;
+    border: 0;
+    padding: 8px 12px;
+    children: [prompt, entry];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @selected-normal-foreground;
+    padding: 0;
+    enabled: true;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @foreground;
+    padding: 0 12px;
+    placeholder: "Search...";
+    placeholder-color: @overlay0;
+}
+
+listview {
+    background-color: transparent;
+    border: 0;
+    spacing: 10px;
+    padding: 10px;
+    columns: 3;
+    lines: 8;
+    fixed-height: true;
+    fixed-lines: true;
+    cycle: true;
+    dynamic: true;
+    scrollbar: false;
+    layout: vertical;
+    reverse: false;
+}
+
+element {
+    background-color: @normal-background;
+    text-color: @normal-foreground;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+element normal {
+    background-color: @normal-background;
+    text-color: @normal-foreground;
+}
+
+element selected {
+    background-color: @selected-normal-background;
+    text-color: @selected-normal-foreground;
+}
+
+element alternate {
+    background-color: @alternate-normal-background;
+    text-color: @alternate-normal-foreground;
+}
+
+element-icon {
+    size: 32px;
+    background-color: transparent;
+    vertical-align: 0.5;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}

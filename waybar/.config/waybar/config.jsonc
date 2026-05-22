@@ -1,0 +1,98 @@
+{
+  "position": "top",
+  "margin-top": 0,
+  "margin-bottom": 0,
+  "margin-left": 8,
+  "margin-right": 8,
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+  "modules-center": [
+  ],
+  "modules-right": [
+    "custom/recording",
+    "tray",
+    "network",
+    "custom/net-speed",
+    "pulseaudio",
+    "battery",
+    "clock",
+    "power-profiles-daemon",
+    "custom/power"
+  ],
+  "clock": {
+    "format": "   {:%a %d %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+  },
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "<span size='13000'>{icon} </span> {capacity}%",
+    "format-warning": "<span size='13000'>{icon} </span> {capacity}%",
+    "format-critical": "<span size='13000'>{icon} </span> {capacity}%",
+    "format-charging": "<span size='13000'> </span>{capacity}%",
+    "format-plugged": "<span size='13000'> </span>{capacity}%",
+    "format-alt": "<span size='13000'>{icon} </span> {time}",
+    "format-full": "<span size='13000'> </span>{capacity}%",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "tooltip-format": "{time}"
+  },
+  "network": {
+    "format-wifi": "<span size='13000'>  </span>{essid}",
+    "format-ethernet": "<span size='13000'>󰤭  </span> Disconnected",
+    "format-linked": "{ifname} (No IP) ",
+    "format-disconnected": "<span size='13000'>  </span>Disconnected",
+    "format-disabled": "<span size='13000'>睊  </span>WiFi Off",
+    "tooltip-format-wifi": "Signal Strenght: {signalStrength}%",
+    "on-click": "~/.config/rofi/scripts/wifi.sh"
+  },
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "",
+    "format-icons": {
+      "default": [
+        "",
+        "",
+        " "
+      ]
+    },
+    "on-click": "pavucontrol"
+  },
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "format-icons": {
+      "default": "",
+      "performance": "",
+      "balanced": "",
+      "power-saver": ""
+    }
+  },
+  "custom/net-speed": {
+    "exec": "~/.config/waybar/network-speed.sh",
+    "interval": 2,
+    "return-type": "json",
+    "tooltip": false
+  },
+  "custom/recording": {
+    "format": "{}",
+    "exec": "~/.config/waybar/recording-status.sh",
+    "on-click": "killall wf-recorder && notify-send 'Recording saved'",
+    "interval": 2,
+    "tooltip": false
+  },
+  "custom/power": {
+    "format": "",
+    "on-click": "~/.config/waybar/power-menu.sh",
+    "tooltip": false
+  }
+}

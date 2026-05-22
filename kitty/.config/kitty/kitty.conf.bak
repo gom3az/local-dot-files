@@ -1,0 +1,9 @@
+font_family      JetBrains Mono
+font_size        12.0
+
+background_opacity 0.95
+hide_window_decorations yes
+
+remember_window_size no
+initial_window_width  1280
+initial_window_height 640

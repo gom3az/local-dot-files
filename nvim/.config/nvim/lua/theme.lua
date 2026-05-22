@@ -1,0 +1,1 @@
+/home/test/.config/themes/current/nvim-colors.lua

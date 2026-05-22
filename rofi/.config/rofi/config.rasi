@@ -1,0 +1,9 @@
+@import "theme.rasi"
+
+configuration {
+    modi: "drun";
+    show-icons: true;
+    display-drun: "Apps";
+    drun-display-format: "{name}";
+    font: "JetBrainsMono Nerd Font 11";
+}

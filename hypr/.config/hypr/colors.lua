@@ -1,0 +1,1 @@
+../../../themes/.config/themes/current/colors.lua
