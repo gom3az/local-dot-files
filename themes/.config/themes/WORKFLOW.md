@@ -105,7 +105,7 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Script | Purpose | Interactive? |
 |---|---|---|
-| `~/.config/scripts/wallpaper-picker.sh` | Launches yazi with symlinked image dirs | Yes (yazi TUI) |
+| `~/.config/scripts/wallpaper-rofi.sh` | Rofi grid wallpaper picker with image previews | Yes (rofi) |
 | `~/.config/scripts/set-wallpaper.sh` | Sets wallpaper via hyprpaper socket | No |
 | `~/.config/scripts/generate-theme.sh` | Extracts colors, generates all format files, manages symlinks, reloads configs | No |
 | `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
