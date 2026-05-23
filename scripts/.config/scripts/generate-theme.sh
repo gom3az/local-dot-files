@@ -325,6 +325,7 @@ generate_rasi() {
     active-background: $SURFACE0;
     selected-active-foreground: $MAUVE;
     selected-active-background: $SURFACE1;
+    font: "$FONT_SANS $FONT_SIZE";
     spacing: 4;
     border: 0;
     border-radius: 0;
