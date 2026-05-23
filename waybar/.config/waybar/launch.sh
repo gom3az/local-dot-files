@@ -3,4 +3,4 @@
 killall waybar || true
 sleep 0.3
 
-waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css &
+LANG=en_US.UTF-8 waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css &

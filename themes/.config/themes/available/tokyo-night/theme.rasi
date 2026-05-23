@@ -27,7 +27,7 @@
     active-background: #24283b;
     selected-active-foreground: #bb9af7;
     selected-active-background: #2f3346;
-    font: "JetBrainsMono Nerd Font 14px";
+    font: "NotoSans Nerd Font 12px";
     spacing: 4;
     border: 0;
     border-radius: 0;

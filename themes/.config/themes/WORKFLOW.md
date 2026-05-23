@@ -78,9 +78,9 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Token | Default | Used By |
 |-------|---------|---------|
-| `fonts.sans` | JetBrainsMono Nerd Font | Waybar, Kitty, Rofi |
-| `fonts.mono` | JetBrainsMono Nerd Font | Kitty |
-| `fonts.size` | 14px | Waybar, Kitty, Rofi |
+| `fonts.sans` | NotoSans Nerd Font | Waybar, Kitty, Rofi |
+| `fonts.mono` | NotoSans Nerd Font | Kitty |
+| `fonts.size` | 12px | Waybar, Kitty, Rofi |
 | `radii.window` | 0 | Waybar, Rofi |
 | `spacing.tight` | 4px | Waybar, Rofi |
 | `spacing.normal` | 8px | Waybar |
@@ -155,7 +155,7 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 Edit `~/.config/themes/tokens.json`:
 ```json
 {
-    "fonts": { "sans": "FiraCode Nerd Font", "size": "13px" },
+    "fonts": { "sans": "FiraCode Nerd Font", "size": "12px" },
     "radii": { "window": 6, "button": 4 }
 }
 ```

@@ -5,5 +5,5 @@ configuration {
     show-icons: true;
     display-drun: "Apps";
     drun-display-format: "{name}";
-    font: "JetBrainsMono Nerd Font 11";
+    font: "NotoSans Nerd Font 12";
 }

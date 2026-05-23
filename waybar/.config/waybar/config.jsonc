@@ -1,5 +1,6 @@
 {
   "position": "top",
+  "height": 43,
   "margin-top": 0,
   "margin-bottom": 0,
   "margin-left": 8,
@@ -8,6 +9,10 @@
     "hyprland/workspaces",
     "hyprland/window"
   ],
+  "hyprland/window": {
+    "max-length": 50,
+    "format": "{}"
+  },
   "modules-center": [
   ],
   "modules-right": [

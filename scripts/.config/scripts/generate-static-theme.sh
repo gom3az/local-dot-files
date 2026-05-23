@@ -97,13 +97,15 @@ done
 
 # Load tokens
 if [[ -f "$TOKENS_FILE" ]]; then
-    FONT_SANS=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('fonts', {}).get('sans', 'JetBrainsMono Nerd Font'))")
-    FONT_SIZE=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('fonts', {}).get('size', '14px'))")
+    FONT_SANS=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('fonts', {}).get('sans', 'NotoSans Nerd Font'))")
+    FONT_SIZE=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('fonts', {}).get('size', '12px'))")
+    FONT_SIZE_LARGE=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('fonts', {}).get('size_large', '15px'))")
     W_RADIUS=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(str(d.get('radii', {}).get('window', 0)))")
     S_TIGHT=$(python3 -c "import json; d=json.load(open('$TOKENS_FILE')); print(d.get('spacing', {}).get('tight', '4px'))")
 else
-    FONT_SANS="JetBrainsMono Nerd Font"
+    FONT_SANS="NotoSans Nerd Font"
     FONT_SIZE="12px"
+    FONT_SIZE_LARGE="15px"
     W_RADIUS=0
     S_TIGHT="4px"
 fi
@@ -275,6 +277,14 @@ color13 $COLOR13
 color14 $COLOR14
 color15 $COLOR15
 KITTYEOF
+
+# === Generate waybar-fonts.css ===
+cat > "$OUTPUT_DIR/waybar-fonts.css" << CSSEOF
+/* Generated from tokens.json by generate-static-theme.sh */
+* {
+    font-size: ${FONT_SIZE_LARGE};
+}
+CSSEOF
 
 # === Generate yazi.toml ===
 cat > "$OUTPUT_DIR/yazi.toml" << YAZIEOF

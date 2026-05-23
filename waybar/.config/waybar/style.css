@@ -1,8 +1,8 @@
 @import "theme.css";
+@import "waybar-fonts.css";
 
 * {
-    font-family: "JetBrainsMono Nerd Font";
-    font-size: 12px;
+    font-family: "NotoSans Nerd Font";
     min-height: 0;
     font-weight: normal;
     border-radius: 0px;

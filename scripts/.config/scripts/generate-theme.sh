@@ -144,10 +144,10 @@ parse_colors() {
 load_tokens() {
     if [[ ! -f "$TOKENS_FILE" ]]; then
         warn "tokens.json not found, using defaults"
-        FONT_SANS="JetBrainsMono Nerd Font"
-        FONT_MONO="JetBrainsMono Nerd Font"
+        FONT_SANS="NotoSans Nerd Font"
+        FONT_MONO="NotoSans Nerd Font"
         FONT_SIZE="12px"
-        FONT_SIZE_SMALL="12px"
+        FONT_SIZE_LARGE="15px"
         RADIUS_WINDOW=0
         RADIUS_BUTTON=0
         RADIUS_POPUP=0
@@ -178,10 +178,10 @@ def g(*keys, default=''):
     return v if v != {} else default
 
 out = {}
-out['FONT_SANS'] = g('fonts', 'sans', default='JetBrainsMono Nerd Font')
-out['FONT_MONO'] = g('fonts', 'mono', default='JetBrainsMono Nerd Font')
-out['FONT_SIZE'] = g('fonts', 'size', default='14px')
-out['FONT_SIZE_SMALL'] = g('fonts', 'size_small', default='12px')
+out['FONT_SANS'] = g('fonts', 'sans', default='NotoSans Nerd Font')
+out['FONT_MONO'] = g('fonts', 'mono', default='NotoSans Nerd Font')
+out['FONT_SIZE'] = g('fonts', 'size', default='12px')
+out['FONT_SIZE_LARGE'] = g('fonts', 'size_large', default='15px')
 out['RADIUS_WINDOW'] = str(g('radii', 'window', default=0))
 out['RADIUS_BUTTON'] = str(g('radii', 'button', default=0))
 out['RADIUS_POPUP'] = str(g('radii', 'popup', default=0))
@@ -480,6 +480,20 @@ KITTYEOF
     mv "$output.tmp" "$output"
 }
 
+# === Generate Waybar Fonts CSS ===
+generate_waybar_fonts() {
+    local wallpaper="$1"
+    local output="$THEME_DIR/waybar-fonts.css"
+    info "Generating Waybar fonts: $(basename "$output")"
+
+    cat > "$output" << CSSEOF
+/* Auto-generated from tokens.json */
+* {
+    font-size: ${FONT_SIZE_LARGE};
+}
+CSSEOF
+}
+
 # === Generate Yazi Theme ===
 generate_yazi() {
     local wallpaper="$1"
@@ -715,6 +729,7 @@ update_symlinks() {
 
     local configs=(
         "$HOME/.config/waybar/theme.css"
+        "$HOME/.config/waybar/waybar-fonts.css"
         "$HOME/.config/rofi/colors.rasi"
         "$HOME/.config/hypr/theme.lua"
         "$HOME/.config/kitty/current-theme.conf"
@@ -725,6 +740,7 @@ update_symlinks() {
 
     local targets=(
         "$THEME_DIR/theme.css"
+        "$THEME_DIR/waybar-fonts.css"
         "$THEME_DIR/colors.rasi"
         "$THEME_DIR/theme.lua"
         "$THEME_DIR/kitty.conf"
@@ -764,7 +780,7 @@ save_to_available() {
     local dest="$AVAILABLE_DIR/$name"
     mkdir -p "$dest"
 
-    for f in theme.css colors.rasi theme.lua kitty.conf yazi.toml tmux-colors.conf nvim-colors.lua metadata.json; do
+    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua metadata.json; do
         cp "$THEME_DIR/$f" "$dest/$f" 2>/dev/null || true
     done
 
