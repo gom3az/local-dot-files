@@ -204,6 +204,7 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("~/.config/scripts/wallpaper-rofi.sh"
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.config/scripts/theme-switcher.sh rofi"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
 hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh sel"))
+hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
 hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
