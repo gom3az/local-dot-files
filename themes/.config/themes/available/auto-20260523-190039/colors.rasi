@@ -1,0 +1,38 @@
+/* Auto-generated theme from: jonatan-pie-3l3RwQdHRHg-unsplash.jpg */
+/* Generated: 2026-05-23 19:00:39 */
+/* DO NOT EDIT - changes will be overwritten */
+
+* {
+    background: #0b111a;
+    foreground: #c2c3c5;
+    background-color: #0b111a;
+    border-color: #0b111a;
+    separatorcolor: #0b111a;
+    normal-foreground: #c2c3c5;
+    normal-background: #1e242c;
+    selected-normal-foreground: #EE96A6;
+    selected-normal-background: #363b43;
+    alternate-normal-foreground: #c2c3c5;
+    alternate-normal-background: #1e242c;
+    overlay0: #71747a;
+    overlay1: #8e9195;
+    overlay2: #a9abae;
+    surface0: #1e242c;
+    surface1: #363b43;
+    surface2: #54585e;
+    subtext0: #6b6e73;
+    subtext1: #888b8f;
+    urgent-foreground: #1897e3;
+    urgent-background: #1e242c;
+    selected-urgent-foreground: #EE96A6;
+    selected-urgent-background: #363b43;
+    active-foreground: #39a27c;
+    active-background: #1e242c;
+    selected-active-foreground: #EE96A6;
+    selected-active-background: #363b43;
+    spacing: 4;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}

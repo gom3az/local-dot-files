@@ -1,0 +1,51 @@
+/* Auto-generated theme from: jonatan-pie-3l3RwQdHRHg-unsplash.jpg */
+/* Generated: 2026-05-23 19:00:39 */
+/* DO NOT EDIT - changes will be overwritten */
+
+@define-color background #0b111a;
+@define-color foreground #c2c3c5;
+@define-color cursor #c2c3c5;
+
+@define-color crust #0a1018;
+@define-color mantle #0a1019;
+@define-color base #0b111a;
+@define-color surface0 #1e242c;
+@define-color surface1 #363b43;
+@define-color surface2 #54585e;
+@define-color overlay0 #71747a;
+@define-color overlay1 #8e9195;
+@define-color overlay2 #a9abae;
+@define-color subtext0 #6b6e73;
+@define-color subtext1 #888b8f;
+@define-color text #c2c3c5;
+
+@define-color red #1897e3;
+@define-color maroon #1897e3;
+@define-color peach #3690ff;
+@define-color yellow #3690ff;
+@define-color green #39a27c;
+@define-color teal #3d9e9f;
+@define-color sky #3d9e9f;
+@define-color sapphire #1696e8;
+@define-color blue #F28A99;
+@define-color mauve #EE96A6;
+@define-color pink #229eb0;
+@define-color lavender #3d9e9f;
+
+/* 16-color palette */
+@define-color color0 #0b111a;
+@define-color color1 #1897e3;
+@define-color color2 #39a27c;
+@define-color color3 #3690ff;
+@define-color color4 #1696e8;
+@define-color color5 #229eb0;
+@define-color color6 #3d9e9f;
+@define-color color7 #8e9299;
+@define-color color8 #8590a4;
+@define-color color9 #1896e3;
+@define-color color10 #39a17c;
+@define-color color11 #338fff;
+@define-color color12 #1796e8;
+@define-color color13 #239db0;
+@define-color color14 #48BABB;
+@define-color color15 #c2c3c5;

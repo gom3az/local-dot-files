@@ -1,0 +1,51 @@
+/* Auto-generated theme from: urban-vintage-78A265wPiO4-unsplash.jpg */
+/* Generated: 2026-05-23 19:03:09 */
+/* DO NOT EDIT - changes will be overwritten */
+
+@define-color background #1f1f0d;
+@define-color foreground #c7c7c2;
+@define-color cursor #c7c7c2;
+
+@define-color crust #1d1d0c;
+@define-color mantle #1e1e0c;
+@define-color base #1f1f0d;
+@define-color surface0 #303020;
+@define-color surface1 #474738;
+@define-color surface2 #626255;
+@define-color overlay0 #7d7d72;
+@define-color overlay1 #97978f;
+@define-color overlay2 #b0b0aa;
+@define-color subtext0 #79796f;
+@define-color subtext1 #98988f;
+@define-color text #c7c7c2;
+
+@define-color red #f1f616;
+@define-color maroon #f1f616;
+@define-color peach #ffedb5;
+@define-color yellow #ffedb5;
+@define-color green #e0f1e0;
+@define-color teal #ffedbb;
+@define-color sky #ffedbb;
+@define-color sapphire #f7efc1;
+@define-color blue #F28A99;
+@define-color mauve #EE96A6;
+@define-color pink #ffecbd;
+@define-color lavender #ffedbb;
+
+/* 16-color palette */
+@define-color color0 #1f1f0d;
+@define-color color1 #f1f616;
+@define-color color2 #e0f1e0;
+@define-color color3 #ffedb5;
+@define-color color4 #f7efc1;
+@define-color color5 #ffecbd;
+@define-color color6 #ffedbb;
+@define-color color7 #efefde;
+@define-color color8 #f0f0c4;
+@define-color color9 #f2f518;
+@define-color color10 #e1f2e1;
+@define-color color11 #ffecb5;
+@define-color color12 #f8edc1;
+@define-color color13 #ffebbe;
+@define-color color14 #ffecbd;
+@define-color color15 #c7c7c2;
