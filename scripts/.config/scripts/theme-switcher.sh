@@ -112,6 +112,7 @@ json.dump(d, open('$meta', 'w'), indent=4)
         "$HOME/.config/yazi/theme.toml"
         "$HOME/.config/tmux/tmux-colors.conf"
         "$HOME/.config/nvim/lua/theme.lua"
+        "$HOME/.config/nvim/lua/nvim-hl.lua"
     )
     local theme_files=(
         "$THEME_DIR/theme.css"
@@ -121,6 +122,7 @@ json.dump(d, open('$meta', 'w'), indent=4)
         "$THEME_DIR/yazi.toml"
         "$THEME_DIR/tmux-colors.conf"
         "$THEME_DIR/nvim-colors.lua"
+        "$THEME_DIR/nvim-hl.lua"
     )
 
     for i in "${!config_targets[@]}"; do

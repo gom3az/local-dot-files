@@ -1,0 +1,39 @@
+/* Auto-generated theme from: urban-vintage-78A265wPiO4-unsplash.jpg */
+/* Generated: 2026-05-25 15:54:47 */
+/* DO NOT EDIT - changes will be overwritten */
+
+* {
+    background: #1f1f0d;
+    foreground: #c7c7c2;
+    background-color: #1f1f0d;
+    border-color: #1f1f0d;
+    separatorcolor: #1f1f0d;
+    normal-foreground: #c7c7c2;
+    normal-background: #303020;
+    selected-normal-foreground: #EE96A6;
+    selected-normal-background: #474738;
+    alternate-normal-foreground: #c7c7c2;
+    alternate-normal-background: #303020;
+    overlay0: #7d7d72;
+    overlay1: #97978f;
+    overlay2: #b0b0aa;
+    surface0: #303020;
+    surface1: #474738;
+    surface2: #626255;
+    subtext0: #79796f;
+    subtext1: #98988f;
+    urgent-foreground: #f1f616;
+    urgent-background: #303020;
+    selected-urgent-foreground: #EE96A6;
+    selected-urgent-background: #474738;
+    active-foreground: #e0f1e0;
+    active-background: #303020;
+    selected-active-foreground: #EE96A6;
+    selected-active-background: #474738;
+    font: "NotoSans Nerd Font 12px";
+    spacing: 4;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}

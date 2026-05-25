@@ -1,8 +1,8 @@
 {
-    "wallpaper": "/home/test/Pictures/Wallpapers/urban-vintage-78A265wPiO4-unsplash.jpg",
-    "generated": "2026-05-25T12:57:03+03:00",
-    "generator": "auto-extract",
-    "theme_name": "auto",
+    "wallpaper": "Tokyo Night (static)",
+    "generated": "2026-05-25T16:17:01+03:00",
+    "generator": "static",
+    "theme_name": "tokyo-night",
     "mode": "dark",
-    "overrides_applied": true
+    "overrides_applied": false
 }

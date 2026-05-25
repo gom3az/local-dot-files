@@ -1,0 +1,34 @@
+# Auto-generated theme from: urban-vintage-78A265wPiO4-unsplash.jpg
+# Generated: 2026-05-25 15:47:03
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#EE96A6'
+      - bold
+    inactiveBorderColor:
+      - '#626255'
+    searchingActiveBorderColor:
+      - '#ffedb5'
+      - bold
+    optionsTextColor:
+      - '#EE96A6'
+    selectedLineBgColor:
+      - '#474738'
+    inactiveViewSelectedLineBgColor:
+      - '#303020'
+    selectedRangeBgColor:
+      - '#474738'
+    cherryPickedCommitFgColor:
+      - '#1f1f0d'
+    cherryPickedCommitBgColor:
+      - '#EE96A6'
+    markedBaseCommitFgColor:
+      - '#1f1f0d'
+    markedBaseCommitBgColor:
+      - '#ffedb5'
+    unstagedChangesColor:
+      - '#f1f616'
+    defaultFgColor:
+      - '#c7c7c2'

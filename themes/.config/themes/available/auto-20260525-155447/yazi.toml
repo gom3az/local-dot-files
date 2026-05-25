@@ -1,0 +1,119 @@
+# Auto-generated theme from: urban-vintage-78A265wPiO4-unsplash.jpg
+# Generated: 2026-05-25 15:54:47
+# DO NOT EDIT - changes will be overwritten
+
+[app]
+overall = { bg = "#1f1f0d" }
+
+[mgr]
+cwd = { fg = "#EE96A6" }
+find_keyword = { fg = "#ffedb5", bold = true }
+find_position = { fg = "#EE96A6" }
+symlink_target = { fg = "#ffedbb" }
+marker_copied = { fg = "#e0f1e0" }
+marker_cut = { fg = "#f1f616" }
+marker_marked = { fg = "#EE96A6" }
+marker_selected = { fg = "#F28A99" }
+count_copied = { fg = "#e0f1e0" }
+count_cut = { fg = "#f1f616" }
+count_selected = { fg = "#F28A99" }
+border_symbol = "│"
+border_style = { fg = "#474738" }
+
+[indicator]
+parent = { bg = "#303020" }
+current = { bg = "#474738" }
+preview = { bg = "#303020" }
+
+[tabs]
+active = { fg = "#c7c7c2", bg = "#474738" }
+inactive = { fg = "#79796f", bg = "#1d1d0c" }
+
+[mode]
+normal_main = { fg = "#1f1f0d", bg = "#F28A99" }
+normal_alt = { fg = "#c7c7c2", bg = "#303020" }
+select_main = { fg = "#1f1f0d", bg = "#EE96A6" }
+select_alt = { fg = "#c7c7c2", bg = "#303020" }
+unset_main = { fg = "#1f1f0d", bg = "#ffedbb" }
+unset_alt = { fg = "#c7c7c2", bg = "#303020" }
+
+[status]
+overall = { bg = "#303020" }
+perm_type = { fg = "#EE96A6" }
+perm_read = { fg = "#e0f1e0" }
+perm_write = { fg = "#ffedb5" }
+perm_exec = { fg = "#f1f616" }
+perm_sep = { fg = "#79796f" }
+progress_label = { fg = "#c7c7c2" }
+progress_normal = { bg = "#474738" }
+progress_error = { bg = "#f1f616" }
+
+[which]
+cols = 2
+mask = { bg = "#303020" }
+cand = { fg = "#EE96A6", bold = true }
+rest = { fg = "#79796f" }
+desc = { fg = "#c7c7c2" }
+separator = "  "
+separator_style = { fg = "#79796f" }
+
+[confirm]
+border = { fg = "#474738" }
+title = { fg = "#EE96A6", bold = true }
+body = { fg = "#c7c7c2" }
+list = { fg = "#98988f" }
+btn_yes = { fg = "#e0f1e0" }
+btn_no = { fg = "#f1f616" }
+
+[spot]
+border = { fg = "#474738" }
+title = { fg = "#EE96A6" }
+tbl_col = { fg = "#EE96A6" }
+tbl_cell = { fg = "#c7c7c2" }
+
+[notify]
+title_info = { fg = "#F28A99", bold = true }
+title_warn = { fg = "#ffedb5", bold = true }
+title_error = { fg = "#f1f616", bold = true }
+
+[pick]
+border = { fg = "#474738" }
+active = { fg = "#1f1f0d", bg = "#EE96A6" }
+inactive = { fg = "#c7c7c2" }
+
+[input]
+border = { fg = "#474738" }
+title = { fg = "#EE96A6" }
+value = { fg = "#c7c7c2" }
+selected = { fg = "#EE96A6", bold = true }
+
+[cmp]
+border = { fg = "#474738" }
+active = { fg = "#1f1f0d", bg = "#EE96A6" }
+inactive = { fg = "#c7c7c2" }
+
+[tasks]
+border = { fg = "#474738" }
+title = { fg = "#EE96A6" }
+hovered = { fg = "#1f1f0d", bg = "#EE96A6" }
+
+[help]
+on = { fg = "#EE96A6", bold = true }
+run = { fg = "#c7c7c2" }
+desc = { fg = "#98988f" }
+hovered = { fg = "#1f1f0d", bg = "#EE96A6" }
+footer = { fg = "#79796f" }
+
+[filetype]
+rules = [
+    { mime = "image/*", fg = "#ffedbb" },
+    { mime = "{audio,video}/*", fg = "#EE96A6" },
+    { mime = "inode/empty", fg = "#79796f" },
+    { mime = "text/*", fg = "#e0f1e0" },
+    { mime = "application/gzip", fg = "#f1f616" },
+    { mime = "application/zip", fg = "#f1f616" },
+    { mime = "application/x-{tar,bzip*}*", fg = "#f1f616" },
+    { mime = "application/pdf", fg = "#ffedb5" },
+    { url = "*/", fg = "#F28A99" },
+    { url = "*", is = "orphan", fg = "#f1f616" },
+]

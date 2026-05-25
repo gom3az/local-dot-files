@@ -99,7 +99,8 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 | Kitty | `~/.config/kitty/kitty.conf` → `include` → `current-theme.conf` → symlink → | `~/.config/themes/current/kitty.conf` |
 | Yazi | `~/.config/yazi/theme.toml` → symlink → | `~/.config/themes/current/yazi.toml` |
 | Tmux | `~/.config/tmux/tmux-colors.conf` → `source-file` by tmux.conf → symlink → | `~/.config/themes/current/tmux-colors.conf` |
-| Neovim | `~/.config/nvim/lua/theme.lua` → `require("theme")` → symlink → | `~/.config/themes/current/nvim-colors.lua` |
+| Neovim (palette) | `~/.config/nvim/lua/theme.lua` → `require("theme")` → symlink → | `~/.config/themes/current/nvim-colors.lua` |
+| Neovim (highlights) | `~/.config/nvim/lua/nvim-hl.lua` → `require("nvim-hl")` → symlink → | `~/.config/themes/current/nvim-hl.lua` |
 
 ## Scripts
 
@@ -191,6 +192,6 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 - **Kitty colors stale** → SIGUSR1 is sent automatically, or `killall -SIGUSR1 kitty`
 - **Hyprland borders wrong** → `hyprctl reload` is called automatically
 - **Tmux colors not updating** → `tmux source-file ~/.config/tmux/tmux-colors.conf` or restart tmux server
-- **Neovim colors not updating** → restart nvim (colors load at startup via `require("theme")`)
+- **Neovim colors not updating** → restart nvim (colors load at startup via `require("theme")` + `require("nvim-hl")`)
 - **Socket errors (set-wallpaper.sh)** → stale hyprpaper socket detected; falls back to restarting hyprpaper
 - **yazi "No such device or address"** → run from a real terminal (kitty via keybinding); not from inside the Claude shell

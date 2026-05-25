@@ -30,9 +30,6 @@ vim.schedule(function()
   vim.o.clipboard = "unnamedplus"
 end)
 
-vim.pack.add({ "https://github.com/NMAC427/guess-indent.nvim" })
-require("guess-indent").setup({})
-
 vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = true,

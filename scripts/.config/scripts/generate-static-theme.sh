@@ -466,6 +466,24 @@ end
 return M
 NVIMEOF
 
+# === Generate nvim-hl.lua ===
+cat > "$OUTPUT_DIR/nvim-hl.lua" << NVIMHLEOF
+-- Auto-generated neovim highlights: $THEME_NAME
+return {
+    bg         = "$BG",
+    bg_alt     = "$SURFACE0",
+    fg         = "$FG",
+    fg_alt     = "$SUBTEXT0",
+    accent     = "$MAUVE",
+    muted      = "$SURFACE2",
+    border     = "$SURFACE1",
+    error      = "$RED",
+    warning    = "$YELLOW",
+    info       = "$GREEN",
+    hint       = "$TEAL",
+}
+NVIMHLEOF
+
 # === Generate metadata.json ===
 cat > "$OUTPUT_DIR/metadata.json" << METAEOF
 {

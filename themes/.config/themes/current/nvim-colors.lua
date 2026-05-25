@@ -1,36 +1,33 @@
--- Auto-generated neovim theme from: urban-vintage-78A265wPiO4-unsplash.jpg
--- Generated: 2026-05-25 12:57:03
--- DO NOT EDIT - changes will be overwritten
-
+-- Static theme: tokyo-night
 local M = {}
 
 M.colors = {
-    rosewater = "#c7c7c2",
-    flamingo = "#c7c7c2",
-    pink = "#ffecbd",
-    mauve = "#EE96A6",
-    red = "#f1f616",
-    maroon = "#f1f616",
-    peach = "#ffedb5",
-    yellow = "#ffedb5",
-    green = "#e0f1e0",
-    teal = "#ffedbb",
-    sky = "#ffedbb",
-    sapphire = "#f7efc1",
-    blue = "#F28A99",
-    lavender = "#ffedbb",
-    text = "#c7c7c2",
-    subtext1 = "#98988f",
-    subtext0 = "#79796f",
-    overlay2 = "#b0b0aa",
-    overlay1 = "#97978f",
-    overlay0 = "#7d7d72",
-    surface2 = "#626255",
-    surface1 = "#474738",
-    surface0 = "#303020",
-    base = "#1f1f0d",
-    mantle = "#1e1e0c",
-    crust = "#1d1d0c",
+    rosewater = "#a9b1d6",
+    flamingo = "#a9b1d6",
+    pink = "#bb9af7",
+    mauve = "#bb9af7",
+    red = "#f7768e",
+    maroon = "#f7768e",
+    peach = "#e0af68",
+    yellow = "#e0af68",
+    green = "#9ece6a",
+    teal = "#7dcfff",
+    sky = "#7dcfff",
+    sapphire = "#7aa2f7",
+    blue = "#7aa2f7",
+    lavender = "#7dcfff",
+    text = "#a9b1d6",
+    subtext1 = "#9aa5ce",
+    subtext0 = "#8b93b3",
+    overlay2 = "#7b83a2",
+    overlay1 = "#6a7391",
+    overlay0 = "#565f89",
+    surface2 = "#414868",
+    surface1 = "#2f3346",
+    surface0 = "#24283b",
+    base = "#1a1b26",
+    mantle = "#16161e",
+    crust = "#15161e",
 }
 
 function M.override(catppuccin_colors)

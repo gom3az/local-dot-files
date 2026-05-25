@@ -726,6 +726,34 @@ NVIMEOF
     mv "$output.tmp" "$output"
 }
 
+generate_nvim_hl() {
+    local wallpaper="$1"
+    local output="$THEME_DIR/nvim-hl.lua"
+    info "Generating Neovim highlights: $(basename "$output")"
+
+    cat > "$output.tmp" << NVIMHLEOF
+-- Auto-generated neovim highlights from: $(basename "$wallpaper")
+-- Generated: $(date '+%Y-%m-%d %H:%M:%S')
+-- DO NOT EDIT - changes will be overwritten
+
+return {
+    bg         = "$BG",
+    bg_alt     = "$SURFACE0",
+    fg         = "$FG",
+    fg_alt     = "$SUBTEXT0",
+    accent     = "$MAUVE",
+    muted      = "$SURFACE2",
+    border     = "$SURFACE1",
+    error      = "$RED",
+    warning    = "$YELLOW",
+    info       = "$GREEN",
+    hint       = "$TEAL",
+}
+NVIMHLEOF
+
+    mv "$output.tmp" "$output"
+}
+
 # === Generate Lazygit Theme ===
 generate_lazygit() {
     local wallpaper="$1"
@@ -821,6 +849,7 @@ update_symlinks() {
         "$HOME/.config/yazi/theme.toml"
         "$HOME/.config/tmux/tmux-colors.conf"
         "$HOME/.config/nvim/lua/theme.lua"
+        "$HOME/.config/nvim/lua/nvim-hl.lua"
         "$HOME/.config/lazygit/config.yml"
         "$HOME/.config/lazydocker/config.yml"
     )
@@ -834,6 +863,7 @@ update_symlinks() {
         "$THEME_DIR/yazi.toml"
         "$THEME_DIR/tmux-colors.conf"
         "$THEME_DIR/nvim-colors.lua"
+        "$THEME_DIR/nvim-hl.lua"
         "$THEME_DIR/lazygit.yml"
         "$THEME_DIR/lazydocker.yml"
     )
@@ -869,7 +899,7 @@ save_to_available() {
     local dest="$AVAILABLE_DIR/$name"
     mkdir -p "$dest"
 
-    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua lazygit.yml lazydocker.yml metadata.json; do
+    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua nvim-hl.lua lazygit.yml lazydocker.yml metadata.json; do
         cp "$THEME_DIR/$f" "$dest/$f" 2>/dev/null || true
     done
 
@@ -978,6 +1008,7 @@ main() {
     generate_yazi "$wallpaper"
     generate_tmux "$wallpaper"
     generate_nvim "$wallpaper"
+    generate_nvim_hl "$wallpaper"
     generate_lazygit "$wallpaper"
     generate_lazydocker "$wallpaper"
 

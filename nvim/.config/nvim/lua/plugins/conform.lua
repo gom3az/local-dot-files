@@ -1,6 +1,7 @@
 local gh = require('utils').gh
 
 vim.pack.add { gh 'stevearc/conform.nvim' }
+
 require('conform').setup {
   notify_on_error = true,
   format_on_save = {
@@ -20,5 +21,4 @@ require('conform').setup {
 vim.keymap.set({ "n", "x" }, "<leader>cf", function()
   require("conform").format({ async = true })
 end, { desc = "[C]onform [F]ormat" })
-
 vim.keymap.set({ "n", "x" }, "<leader>cJ", "<cmd>%!jq .<CR>", { desc = "[C]ode [J]SON format" })

@@ -5,7 +5,6 @@ vim.pack.add {
   gh 'jay-babu/mason-nvim-dap.nvim',
   gh 'theHamsta/nvim-dap-virtual-text',
   gh 'rcarriga/nvim-dap-ui',
-  gh 'nvim-neotest/nvim-nio',
 }
 
 require('dapui').setup {}
