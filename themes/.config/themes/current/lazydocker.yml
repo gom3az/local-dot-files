@@ -1,0 +1,24 @@
+# Auto-generated theme from: urban-vintage-78A265wPiO4-unsplash.jpg
+# Generated: 2026-05-25 12:57:03
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#EE96A6'
+      - bold
+    inactiveBorderColor:
+      - '#626255'
+    selectedLineBgColor:
+      - '#474738'
+    optionsTextColor:
+      - '#EE96A6'
+
+stats:
+  graphs:
+    - caption: CPU (%)
+      statPath: DerivedStats.CPUPercentage
+      color: '#f1f616'
+    - caption: Memory (%)
+      statPath: DerivedStats.MemoryPercentage
+      color: '#e0f1e0'

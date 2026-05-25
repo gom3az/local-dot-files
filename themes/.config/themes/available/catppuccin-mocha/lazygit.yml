@@ -1,0 +1,33 @@
+# Auto-generated theme from: Catppuccin Mocha (static)
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#cba6f7'
+      - bold
+    inactiveBorderColor:
+      - '#585b70'
+    searchingActiveBorderColor:
+      - '#f9e2af'
+      - bold
+    optionsTextColor:
+      - '#cba6f7'
+    selectedLineBgColor:
+      - '#45475a'
+    inactiveViewSelectedLineBgColor:
+      - '#313244'
+    selectedRangeBgColor:
+      - '#45475a'
+    cherryPickedCommitFgColor:
+      - '#1e1e2e'
+    cherryPickedCommitBgColor:
+      - '#cba6f7'
+    markedBaseCommitFgColor:
+      - '#1e1e2e'
+    markedBaseCommitBgColor:
+      - '#f9e2af'
+    unstagedChangesColor:
+      - '#f38ba8'
+    defaultFgColor:
+      - '#cdd6f4'

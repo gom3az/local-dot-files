@@ -10,6 +10,8 @@
 #   - Yazi (TOML)
 #   - Tmux (conf snippet)
 #   - Neovim (Lua snippet)
+#   - Lazygit (YAML)
+#   - Lazydocker (YAML)
 #
 # Usage:
 #   generate-theme.sh [wallpaper_path]
@@ -724,6 +726,88 @@ NVIMEOF
     mv "$output.tmp" "$output"
 }
 
+# === Generate Lazygit Theme ===
+generate_lazygit() {
+    local wallpaper="$1"
+    local output="$THEME_DIR/lazygit.yml"
+    info "Generating Lazygit: $(basename "$output")"
+
+    cat > "$output.tmp" << LAZYGITEOF
+# Auto-generated theme from: $(basename "$wallpaper")
+# Generated: $(date '+%Y-%m-%d %H:%M:%S')
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '$MAUVE'
+      - bold
+    inactiveBorderColor:
+      - '$SURFACE2'
+    searchingActiveBorderColor:
+      - '$YELLOW'
+      - bold
+    optionsTextColor:
+      - '$MAUVE'
+    selectedLineBgColor:
+      - '$SURFACE1'
+    inactiveViewSelectedLineBgColor:
+      - '$SURFACE0'
+    selectedRangeBgColor:
+      - '$SURFACE1'
+    cherryPickedCommitFgColor:
+      - '$BG'
+    cherryPickedCommitBgColor:
+      - '$MAUVE'
+    markedBaseCommitFgColor:
+      - '$BG'
+    markedBaseCommitBgColor:
+      - '$YELLOW'
+    unstagedChangesColor:
+      - '$RED'
+    defaultFgColor:
+      - '$FG'
+LAZYGITEOF
+
+    mv "$output.tmp" "$output"
+}
+
+# === Generate Lazydocker Theme ===
+generate_lazydocker() {
+    local wallpaper="$1"
+    local output="$THEME_DIR/lazydocker.yml"
+    info "Generating Lazydocker: $(basename "$output")"
+
+    cat > "$output.tmp" << LAZYDOCKEREOF
+# Auto-generated theme from: $(basename "$wallpaper")
+# Generated: $(date '+%Y-%m-%d %H:%M:%S')
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '$MAUVE'
+      - bold
+    inactiveBorderColor:
+      - '$SURFACE2'
+    selectedLineBgColor:
+      - '$SURFACE1'
+    optionsTextColor:
+      - '$MAUVE'
+
+stats:
+  graphs:
+    - caption: CPU (%)
+      statPath: DerivedStats.CPUPercentage
+      color: '$RED'
+    - caption: Memory (%)
+      statPath: DerivedStats.MemoryPercentage
+      color: '$GREEN'
+LAZYDOCKEREOF
+
+    mv "$output.tmp" "$output"
+}
+
 # === Update Symlinks Atomically ===
 update_symlinks() {
     info "Updating symlinks..."
@@ -737,6 +821,8 @@ update_symlinks() {
         "$HOME/.config/yazi/theme.toml"
         "$HOME/.config/tmux/tmux-colors.conf"
         "$HOME/.config/nvim/lua/theme.lua"
+        "$HOME/.config/lazygit/config.yml"
+        "$HOME/.config/lazydocker/config.yml"
     )
 
     local targets=(
@@ -748,6 +834,8 @@ update_symlinks() {
         "$THEME_DIR/yazi.toml"
         "$THEME_DIR/tmux-colors.conf"
         "$THEME_DIR/nvim-colors.lua"
+        "$THEME_DIR/lazygit.yml"
+        "$THEME_DIR/lazydocker.yml"
     )
 
     for i in "${!configs[@]}"; do
@@ -781,7 +869,7 @@ save_to_available() {
     local dest="$AVAILABLE_DIR/$name"
     mkdir -p "$dest"
 
-    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua metadata.json; do
+    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua lazygit.yml lazydocker.yml metadata.json; do
         cp "$THEME_DIR/$f" "$dest/$f" 2>/dev/null || true
     done
 
@@ -816,6 +904,8 @@ reload_configs() {
     info "  Yazi will use new theme on next launch"
     info "  Tmux will use new theme on next source-file or server restart"
     info "  Neovim will use new theme on next restart"
+    info "  Lazygit will use new theme on next restart"
+    info "  Lazydocker will use new theme on next restart"
 }
 
 # === Save Metadata ===
@@ -888,6 +978,8 @@ main() {
     generate_yazi "$wallpaper"
     generate_tmux "$wallpaper"
     generate_nvim "$wallpaper"
+    generate_lazygit "$wallpaper"
+    generate_lazydocker "$wallpaper"
 
     update_symlinks
     save_to_available "$THEME_NAME"

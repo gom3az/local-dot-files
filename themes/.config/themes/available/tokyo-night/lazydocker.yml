@@ -1,0 +1,24 @@
+# Auto-generated theme from: Tokyo Night (static)
+# Generated: 2026-05-24 11:18:15
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#bb9af7'
+      - bold
+    inactiveBorderColor:
+      - '#414868'
+    selectedLineBgColor:
+      - '#2f3346'
+    optionsTextColor:
+      - '#bb9af7'
+
+stats:
+  graphs:
+    - caption: CPU (%)
+      statPath: DerivedStats.CPUPercentage
+      color: '#f7768e'
+    - caption: Memory (%)
+      statPath: DerivedStats.MemoryPercentage
+      color: '#9ece6a'

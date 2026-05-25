@@ -1,0 +1,23 @@
+# Auto-generated theme from: Catppuccin Mocha (static)
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#cba6f7'
+      - bold
+    inactiveBorderColor:
+      - '#585b70'
+    selectedLineBgColor:
+      - '#45475a'
+    optionsTextColor:
+      - '#cba6f7'
+
+stats:
+  graphs:
+    - caption: CPU (%)
+      statPath: DerivedStats.CPUPercentage
+      color: '#f38ba8'
+    - caption: Memory (%)
+      statPath: DerivedStats.MemoryPercentage
+      color: '#a6e3a1'

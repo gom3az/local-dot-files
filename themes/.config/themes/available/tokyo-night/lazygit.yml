@@ -1,0 +1,34 @@
+# Auto-generated theme from: Tokyo Night (static)
+# Generated: 2026-05-24 11:18:15
+# DO NOT EDIT - changes will be overwritten
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#bb9af7'
+      - bold
+    inactiveBorderColor:
+      - '#414868'
+    searchingActiveBorderColor:
+      - '#e0af68'
+      - bold
+    optionsTextColor:
+      - '#bb9af7'
+    selectedLineBgColor:
+      - '#2f3346'
+    inactiveViewSelectedLineBgColor:
+      - '#24283b'
+    selectedRangeBgColor:
+      - '#2f3346'
+    cherryPickedCommitFgColor:
+      - '#1a1b26'
+    cherryPickedCommitBgColor:
+      - '#bb9af7'
+    markedBaseCommitFgColor:
+      - '#1a1b26'
+    markedBaseCommitBgColor:
+      - '#e0af68'
+    unstagedChangesColor:
+      - '#f7768e'
+    defaultFgColor:
+      - '#a9b1d6'
