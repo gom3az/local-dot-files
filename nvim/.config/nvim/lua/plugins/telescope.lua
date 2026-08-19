@@ -11,6 +11,20 @@ end
 vim.pack.add(telescope_plugins)
 
 require('telescope').setup {
+  defaults = {
+    file_ignore_patterns = {
+      "build/",
+      ".gradle/",
+      ".idea/",
+    },
+    vimgrep_arguments = {
+      "rg", "--color=never", "--no-heading", "--with-filename",
+      "--line-number", "--column", "--smart-case", "--hidden",
+      "--glob=!**/build/*",
+      "--glob=!**/.gradle/*",
+      "--glob=!**/.idea/*",
+    },
+  },
   extensions = {
     ['ui-select'] = { require('telescope.themes').get_dropdown() },
   },
@@ -34,7 +48,7 @@ vim.keymap.set("n", "<leader>sr", function() telescope_builtin().resume() end, {
 vim.keymap.set("n", "<leader>s.", function() telescope_builtin().oldfiles() end, { desc = "[S]earch Recent Files" })
 vim.keymap.set("n", "<leader>sc", function() telescope_builtin().commands() end, { desc = "[S]earch [C]ommands" })
 vim.keymap.set("n", "<leader><leader>", function() telescope_builtin().find_files() end, { desc = "[ ] Find files" })
-vim.keymap.set("n", "<leader>fb", function() telescope_builtin().buffers() end, { desc = "[F]iles [B]uffers" })
+vim.keymap.set("n", "<leader>sb", function() telescope_builtin().buffers() end, { desc = "[S]earch [B]uffers" })
 vim.keymap.set("n", "<leader>gb", function() telescope_builtin().git_branches() end, { desc = "[G]it [B]ranches" })
 vim.keymap.set("n", "<leader>/", function() telescope_builtin().current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({ winblend = 10, previewer = false })) end, { desc = "[/] Fuzzily search in current buffer" })
 vim.keymap.set("n", "<leader>s/", function() telescope_builtin().live_grep({ grep_open_files = true, prompt_title = "Live Grep in Open Files" }) end, { desc = "[S]earch [/] in Open Files" })

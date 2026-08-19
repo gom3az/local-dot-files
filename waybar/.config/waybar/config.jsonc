@@ -91,7 +91,7 @@
   "custom/recording": {
     "format": "{}",
     "exec": "~/.config/waybar/recording-status.sh",
-    "on-click": "killall wf-recorder && notify-send 'Recording saved'",
+    "on-click": "~/.config/waybar/recording-stop.sh",
     "interval": 2,
     "tooltip": false
   },

@@ -30,3 +30,8 @@ Colors are extracted from your wallpaper (via pywal16) and propagated across eve
 Central `tokens.json` holds all design constants. Colors are extracted from wallpaper, merged with `overrides/global.json`, and templated into per-app configs by `generate-theme.sh`. Named themes are saved to `themes/available/` and switchable via rofi.
 
 See `themes/.config/themes/WORKFLOW.md` for the full architecture.
+
+## Installing Hyprland on Fedora
+
+Hyprland is built from source (Fedora official repos don't ship it). See
+[`docs/HYPRLAND-FEDORA-BUILD.md`](docs/HYPRLAND-FEDORA-BUILD.md) for the full build guide.

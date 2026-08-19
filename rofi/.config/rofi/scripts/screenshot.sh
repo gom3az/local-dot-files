@@ -42,23 +42,19 @@ case "$choice" in
     "󰕧  Area Recording")
         filepath="${save_dir}/Recording-${timestamp}.mp4"
         geometry=$(slurp) || exit 0
-        wf-recorder -g "$geometry" -f "$filepath" &
-        notify-send "Recording started" "${filepath}"
+        ~/.config/waybar/recording-start.sh -g "$geometry" "$filepath"
         ;;
     "󰕧  Area Recording + Audio")
         filepath="${save_dir}/Recording-${timestamp}.mp4"
         geometry=$(slurp) || exit 0
-        wf-recorder -g "$geometry" --audio-backend=pipewire -a -f "$filepath" &
-        notify-send "Recording started" "${filepath}"
+        ~/.config/waybar/recording-start.sh -a -g "$geometry" "$filepath"
         ;;
     "🖥  Full Recording")
         filepath="${save_dir}/Recording-${timestamp}.mp4"
-        wf-recorder -f "$filepath" &
-        notify-send "Recording started" "${filepath}"
+        ~/.config/waybar/recording-start.sh "$filepath"
         ;;
     "🖥  Full Recording + Audio")
         filepath="${save_dir}/Recording-${timestamp}.mp4"
-        wf-recorder --audio-backend=pipewire -a -f "$filepath" &
-        notify-send "Recording started" "${filepath}"
+        ~/.config/waybar/recording-start.sh -a "$filepath"
         ;;
 esac

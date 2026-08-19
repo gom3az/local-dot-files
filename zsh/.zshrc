@@ -86,3 +86,4 @@ setopt HIST_IGNORE_ALL_DUPS  # Remove older duplicate commands from history
 setopt HIST_IGNORE_SPACE     # Don't save commands that start with a space
 setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks before saving
 
+export ELECTRON_OZONE_PLATFORM_HINT=x11

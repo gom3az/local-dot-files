@@ -3,6 +3,17 @@ if not ok then return end
 
 local s = function(group, opts) vim.api.nvim_set_hl(0, group, opts) end
 
+local function brighten(hex, amt)
+  amt = amt or 0.3
+  local mix = function(c) return math.floor(c + (255 - c) * amt) end
+  return string.format(
+    "#%02x%02x%02x",
+    mix(tonumber(hex:sub(2, 3), 16)),
+    mix(tonumber(hex:sub(4, 5), 16)),
+    mix(tonumber(hex:sub(6, 7), 16))
+  )
+end
+
 -- Canvas
 s("Normal",        { fg = hl.fg, bg = hl.bg })
 s("NormalFloat",   { fg = hl.fg, bg = hl.bg_alt })
@@ -17,9 +28,9 @@ s("Visual",        { bg = hl.accent, fg = hl.bg })
 s("WinSeparator",  { fg = hl.border })
 
 -- Search
-s("Search",        { bg = hl.accent, fg = hl.bg })
-s("IncSearch",     { bg = hl.warning, fg = hl.bg })
-s("CurSearch",     { bg = hl.accent, fg = hl.bg })
+s("Search",        { bg = hl.bg_alt, fg = brighten(hl.fg) })
+s("IncSearch",     { bg = hl.bg, fg = brighten(hl.fg) })
+s("CurSearch",     { bg = hl.bg, fg = brighten(hl.fg), bold = true })
 
 -- Popup menu
 s("Pmenu",         { bg = hl.bg_alt, fg = hl.fg })
