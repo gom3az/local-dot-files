@@ -61,8 +61,10 @@
     "on-click": "~/.config/rofi/scripts/wifi.sh"
   },
   "pulseaudio": {
-    "format": "{icon}  {volume}%",
-    "format-muted": "",
+    "format": "{icon}  {volume}%  {desc}",
+    "format-bluetooth": "{icon}  {volume}%  {desc}",
+    "format-muted": "  {desc}",
+    "tooltip-format": "{desc}\nVolume: {volume}%",
     "format-icons": {
       "default": [
         "",
@@ -70,7 +72,8 @@
         " "
       ]
     },
-    "on-click": "pavucontrol"
+    "max-length": 45,
+    "on-click": "~/.config/scripts/audio-mixer-toggle.sh"
   },
   "power-profiles-daemon": {
     "format": "{icon}",

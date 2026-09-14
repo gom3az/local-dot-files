@@ -37,6 +37,7 @@ install via Mason on first file open (`:Mason` to manage).
 │   ├── init.lua          # Requires all plugin modules
 │   ├── catppuccin.lua    # Colorscheme
 │   ├── cmp.lua           # blink.cmp completion
+│   ├── conform.lua       # Format-on-save (conform.nvim)
 │   ├── dap.lua           # nvim-dap + dap-ui (Kotlin/Java DAP config)
 │   ├── java.lua          # nvim-java (jdtls, DAP, test runner)
 │   ├── kotlin-module.lua # Local kotlin-module.nvim (<leader>km)
@@ -47,7 +48,6 @@ install via Mason on first file open (`:Mason` to manage).
 │   └── ...               # bufferline, gitsigns, guess-indent, mini, neogit,
 │                         # nui, nvim-nio, plenary, which-key
 ├── lua/statusline.lua    # Native statusline
-├── lua/formatting.lua    # Native format-on-save (LSP + jq)
 ├── lua/todos.lua         # Native TODO/FIXME keyword highlighting
 ├── lua/treesitter.lua    # Native treesitter (fold + FileType attach)
 ├── lua/utils.lua         # gh() URL helper
@@ -66,7 +66,7 @@ install via Mason on first file open (`:Mason` to manage).
 - **Git** — neogit (Git UI), diffview, gitsigns
 - **UI** — catppuccin colorscheme, native statusline, neo-tree explorer, bufferline tabs
 - **Highlighting** — native treesitter (`vim.treesitter.start`), native TODO keywords
-- **Formatting** — native format-on-save (LSP provider, else jq)
+- **Formatting** — conform.nvim (LSP fallback; ktlint for `*.gradle.kts`, jq for JSON)
 
 ## Keymaps
 
@@ -189,7 +189,6 @@ install via Mason on first file open (`:Mason` to manage).
 
 Removed during the plugin→native migration, replaced by nvim built-ins:
 - **lualine** → native statusline (`lua/statusline.lua`)
-- **conform.nvim** → native format-on-save (`lua/formatting.lua`)
 - **nvim-treesitter (loaded)** → `vim.treesitter.start` (`lua/treesitter.lua`); query data
   still provided by the dormant pack
 - **todo-comments.nvim** → `syntax match` keywords (`lua/todos.lua`)

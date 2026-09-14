@@ -851,7 +851,6 @@ update_symlinks() {
         "$HOME/.config/nvim/lua/theme.lua"
         "$HOME/.config/nvim/lua/nvim-hl.lua"
         "$HOME/.config/lazygit/config.yml"
-        "$HOME/.config/lazydocker/config.yml"
     )
 
     local targets=(
@@ -865,7 +864,6 @@ update_symlinks() {
         "$THEME_DIR/nvim-colors.lua"
         "$THEME_DIR/nvim-hl.lua"
         "$THEME_DIR/lazygit.yml"
-        "$THEME_DIR/lazydocker.yml"
     )
 
     for i in "${!configs[@]}"; do
@@ -935,7 +933,7 @@ reload_configs() {
     info "  Tmux will use new theme on next source-file or server restart"
     info "  Neovim will use new theme on next restart"
     info "  Lazygit will use new theme on next restart"
-    info "  Lazydocker will use new theme on next restart"
+    info "  Lazydocker is decoupled (stow package); reference theme only"
 }
 
 # === Save Metadata ===

@@ -8,6 +8,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/).
 |---------|---------|
 | `hypr` | `~/.config/hypr` |
 | `kitty` | `~/.config/kitty` |
+| `lazydocker` | `~/.config/lazydocker` |
 | `nvim` | `~/.config/nvim` |
 | `rofi` | `~/.config/rofi` |
 | `themes` | `~/.config/themes` |

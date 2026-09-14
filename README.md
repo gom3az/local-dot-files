@@ -35,3 +35,9 @@ See `themes/.config/themes/WORKFLOW.md` for the full architecture.
 
 Hyprland is built from source (Fedora official repos don't ship it). See
 [`docs/HYPRLAND-FEDORA-BUILD.md`](docs/HYPRLAND-FEDORA-BUILD.md) for the full build guide.
+
+## Known issues
+
+- Kotlin LSP `intellij-server has expired` (Neovim + Mason) — see
+  [`docs/KOTLIN-LSP-EXPIRY.md`](docs/KOTLIN-LSP-EXPIRY.md) for diagnosis and the
+  `faketime` workaround.

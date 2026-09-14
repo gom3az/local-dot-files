@@ -16,6 +16,7 @@ require("plugins.which-key")
 
 -- 4. Feature plugins (no UI theme dependency)
 require("plugins.cmp")
+require("plugins.conform")
 require("plugins.dap")
 require("plugins.guess-indent")
 require("plugins.lsp")

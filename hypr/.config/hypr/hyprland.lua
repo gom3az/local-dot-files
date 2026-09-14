@@ -62,13 +62,17 @@ local menu = "rofi -show drun"
 -------------------
 
 hl.on("hyprland.start", function()
-	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-	hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE")
+	hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE")
+	hl.exec_cmd("systemctl --user start graphical-session.target")
+	hl.exec_cmd("systemctl --user start xdg-desktop-portal")
 	hl.exec_cmd("waybar")
 	hl.exec_cmd("swaync")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("wl-paste --watch $HOME/.config/scripts/cliphist.sh add")
+	-- Default to high-quality A2DP (toggle to headset via buds-mic.sh when mic needed)
+	hl.exec_cmd("sleep 2 && pactl set-card-profile alsa_card.pci-0000_12_00.6 off; pactl set-card-profile bluez_card.5C_DC_49_8F_03_26 a2dp-sink || true")
 end)
 
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
@@ -207,6 +211,7 @@ hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
 hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh sel"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.config/scripts/audio-mixer-toggle.sh"))
 hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }))
@@ -267,4 +272,13 @@ hl.window_rule({
 	border_size = 0,
 	no_shadow = true,
 	no_blur = true,
+})
+
+-- Floating wiremix mixer (kitty + wiremix, toggled via SUPER+A / Waybar).
+-- Compact centered popup; size enforced here, font (10pt) in the launcher.
+hl.window_rule({
+	name = "wiremix-mixer",
+	match = { class = "kitty-wiremix" },
+	float = true,
+	size = { 640, 420 },
 })

@@ -1,0 +1,40 @@
+# Lazydocker config — managed via GNU Stow (dotfiles/lazydocker package).
+# Theme colors below are a snapshot (Tokyo Night); wallpaper switches do NOT
+# touch this file. The theme generator only writes
+# ~/.config/themes/current/lazydocker.yml as an unused reference.
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#bb9af7'
+      - bold
+    inactiveBorderColor:
+      - '#414868'
+    selectedLineBgColor:
+      - '#2f3346'
+    optionsTextColor:
+      - '#bb9af7'
+
+stats:
+  graphs:
+    - caption: CPU (%)
+      statPath: DerivedStats.CPUPercentage
+      color: '#f7768e'
+    - caption: Memory (%)
+      statPath: DerivedStats.MemoryPercentage
+      color: '#9ece6a'
+
+# vault/consul images run their service user on /sbin/nologin, so lazydocker's
+# default shell detection fails with "This account is not available".
+# Use `c` on a container and pick one of these explicit commands instead.
+customCommands:
+  containers:
+    - name: sh
+      attach: true
+      command: 'docker exec -it {{ .Container.ID }} /bin/sh'
+    - name: sh-as-root
+      attach: true
+      command: 'docker exec -it -u 0 {{ .Container.ID }} /bin/sh'
+    - name: vault-status
+      attach: true
+      command: 'docker exec -it {{ .Container.ID }} vault status'

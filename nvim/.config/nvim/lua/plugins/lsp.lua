@@ -47,7 +47,10 @@ vim.lsp.config('stylua', {
 vim.lsp.enable('stylua')
 
 vim.lsp.config('kotlin-lsp', {
-  cmd = { 'intellij-server', '--stdio' },
+  -- WORKAROUND 2026-09-08: kotlin-server-262.9593.0 (Jul 27) is expired;
+  -- intellij-server quits after its 30-day EAP period. Freeze its clock
+  -- until JetBrains ships a new build. See Kotlin/kotlin-lsp#217.
+  cmd = { 'faketime', '2026-08-15 12:00:00', 'intellij-server', '--stdio' },
   cmd_env = {
     IJ_JAVA_OPTIONS = '-Didea.config.path='
       .. vim.fn.stdpath('data')
