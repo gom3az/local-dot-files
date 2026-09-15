@@ -35,6 +35,25 @@ counts as before — the wrappers stay covered by Rust tests in
 `flex-rice/tests`, and the binary still lands at `target/release/flex`, so the
 `~/.local/bin/flex` symlink and all 13 wrapper references are untouched.
 
+Engine extraction: `flex-core` now lives in its own repository,
+[gom3az/flex-core], and is consumed here as a git dependency pinned by tag
+(`flex-core = { git = …, tag = "v1.0.0" }` in `[workspace.dependencies]`;
+`Cargo.lock` pins the exact revision, `777d6fc`). The extracted crate is
+unchanged apart from a standalone manifest and its `repository` URL, builds and
+passes its 109 tests on its own, and packages cleanly. What stays here is the
+rice half: `flex-rice` (providers, `flex` binary, wrappers) with its 222 tests.
+The workspace root is kept with a single member **on purpose** — it pins
+`target/` at `flex/target/`, which `~/.local/bin/flex` resolves through, and
+keeps `flex-rice/wrappers/` where the 13 config references and
+`tests/wrappers.rs` expect it. Flattening `flex-rice/` into `flex/` would move
+the wrappers and break every keybind, which `04e2599` demonstrated.
+
+`flex-core` has no CI yet: pushing `.github/workflows/` needs a GitHub token
+with the `workflow` scope, which this checkout's token lacks. The workflow
+(fmt → clippy `-D warnings` → test) is written and ready to add.
+
+[gom3az/flex-core]: https://github.com/gom3az/flex-core
+
 ### Added
 - `flex wifi` provider (`src/providers/wifi.rs`): the network dialog. Rows are
   `Turn Wi-Fi Off`/`Turn Wi-Fi On` (radio state read from `nmcli radio wifi`,

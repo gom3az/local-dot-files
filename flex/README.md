@@ -8,12 +8,12 @@ wallpaper swap, Wi-Fi connect, …).
 
 ## Workspace layout
 
-The workspace is split along the line that matters for reuse:
+The two halves of flex live in different repositories:
 
-| Crate | What it is | Publishable |
+| Crate | Where it lives | Publishable |
 |---|---|---|
-| `flex-core` | The engine: menu/list rendering, fuzzy filtering, key handling, the design system, kitty-graphics previews. Generic — no machine-specific path anywhere. | Yes |
-| `flex-rice` | This Hyprland rice's glue: the eight providers, the `flex` binary and the shell wrappers under `flex-rice/wrappers/`. Reads `~/.config/themes`, `hyprpaper.conf`, `~/.cache/cliphist` and ML4W's wallpaper cache. | No (`publish = false`) |
+| `flex-core` | Its own repo, [gom3az/flex-core], consumed here as a **git dependency pinned by tag**. The engine: menu/list rendering, fuzzy filtering, key handling, the design system, kitty-graphics previews. | Yes |
+| `flex-rice` | This repo, `flex/flex-rice/`: the eight providers, the `flex` binary and the shell wrappers. Reads `~/.config/themes`, `hyprpaper.conf`, `~/.cache/cliphist` and ML4W's wallpaper cache. | No (`publish = false`) |
 
 Dependencies run one way (`flex-rice` → `flex-core`). The engine's only former
 reach into providers is now a seam: `Menu::on_tick` takes a `TickHook`, and
@@ -22,11 +22,15 @@ finished `wifi` scan — build menus in this repo with `flex_rice::menu(…)`,
 which installs it.
 
 ```sh
-cargo test                       # both crates (-p flex-core / -p flex-rice to scope)
+cargo test                       # the rice half (222 tests; the engine's 109 run in its repo)
 cargo build --release            # → target/release/flex (what the wrappers exec)
 cargo clippy --all-targets -- -D warnings
-cargo package -p flex-core       # the library half packages on its own
 ```
+
+To iterate on the engine locally, patch it in without committing the override —
+see `Docs/project_structure.md` → "Working on the engine".
+
+[gom3az/flex-core]: https://github.com/gom3az/flex-core
 
 ## `ACTION:` protocol
 

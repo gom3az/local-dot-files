@@ -15,7 +15,8 @@ name = "flex"
 path = "src/main.rs"
 
 [dependencies]
-flex-core = { path = "../flex-core" }
+# The engine, from its own repository (see the workspace root for the pin).
+flex-core.workspace = true
 anyhow.workspace = true
 clap.workspace = true
 crossterm.workspace = true

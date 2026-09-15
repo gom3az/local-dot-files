@@ -1,20 +1,21 @@
 # flex — workspace root.
 #
-# The crate is split along the line that matters for reuse:
+# The engine now lives in its own repository,
+# https://github.com/gom3az/flex-core, and is consumed here as a git dependency.
+# What remains in this repo is the rice-specific half:
 #
-#   flex-core   the reusable engine. Generic menu/list rendering, filtering,
-#               key handling, the design system, kitty-graphics previews.
-#               No machine-specific paths — publishable as-is.
-#   flex-rice   this Hyprland rice's glue: the eight providers that adapt
-#               hyprpaper/cliphist/nmcli/wpctl/… to the engine, the `flex`
-#               binary, and the shell wrappers Hyprland and Waybar call.
-#               Machine-specific by nature; never published.
+#   flex-rice   the eight providers that adapt hyprpaper/cliphist/nmcli/wpctl/…
+#               to the engine, the `flex` binary, and the shell wrappers that
+#               Hyprland and Waybar call. Machine-specific by nature.
 #
-# Dependencies point one way (flex-rice → flex-core), so flex-core can be
-# extracted to its own repository without touching its source.
+# The workspace root is kept even with a single member, deliberately: it is what
+# pins `target/` at `flex/target/`, which `~/.local/bin/flex` resolves through
+# and which the wrappers' tests rely on. Flattening `flex-rice/` into `flex/`
+# would move `flex-rice/wrappers/` and break all 13 config references — see
+# Docs/project_structure.md.
 
 [workspace]
-members = ["flex-core", "flex-rice"]
+members = ["flex-rice"]
 resolver = "2"
 
 [workspace.package]
@@ -22,20 +23,16 @@ version = "1.0.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["flex contributors"]
-repository = "https://example.invalid/flex"
+repository = "https://github.com/gom3az/local-dot-files"
 
 [workspace.dependencies]
+# The reusable engine: its own repo, pinned by tag. To move to a new engine
+# release, bump the tag here and run `cargo update -p flex-core`.
+flex-core = { git = "https://github.com/gom3az/flex-core", tag = "v1.0.0" }
 ratatui = { version = "=0.29.0", features = ["crossterm"] }
 crossterm = "0.28"
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"
-# Non-CJK widths: ambiguous codepoints are narrow (default-features off drops
-# the `cjk` feature that would make them wide). See `flex-core/src/width.rs`.
-unicode-width = { version = "0.2", default-features = false }
-
-[workspace.dependencies.criterion]
-version = "0.5"
-features = ["html_reports"]
 
 [workspace.lints.rust]
 unsafe_code = "deny"
