@@ -1,9 +1,0 @@
-@import "theme.rasi"
-
-configuration {
-    modi: "drun";
-    show-icons: true;
-    display-drun: "Apps";
-    drun-display-format: "{name}";
-    font: "NotoSans Nerd Font 12";
-}

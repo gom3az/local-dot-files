@@ -58,7 +58,7 @@
     "format-disconnected": "<span size='13000'>  </span>Disconnected",
     "format-disabled": "<span size='13000'>睊  </span>WiFi Off",
     "tooltip-format-wifi": "Signal Strenght: {signalStrength}%",
-    "on-click": "~/.config/rofi/scripts/wifi.sh"
+    "on-click": "$HOME/dotfiles/flex/wrappers/flex-wifi.sh"
   },
   "pulseaudio": {
     "format": "{icon}  {volume}%  {desc}",
@@ -100,7 +100,7 @@
   },
   "custom/power": {
     "format": "",
-    "on-click": "~/.config/waybar/power-menu.sh",
+    "on-click": "$HOME/dotfiles/flex/wrappers/flex-power.sh",
     "tooltip": false
   }
 }

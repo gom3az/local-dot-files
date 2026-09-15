@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-selection=$(ps -u "$USER" -o pid,comm,%cpu,%mem --no-headers |
-    rofi -dmenu -i -l 15 -p "Kill:" -theme-str 'window {width: 50%;} listview {lines: 15;}' |
-    awk '{print $1}')
+# Live TUI process manager (replaces the rofi kill picker).
+# Re-launch inside a floating popup when invoked from bind.
+if [[ "${POPUP_KITTY:-}" != 1 ]]; then
+    exec "$HOME/.config/scripts/popup.sh" menu-wide "$0" "$@"
+fi
 
-[[ -z "$selection" ]] && exit 0
-
-kill "$selection" 2>/dev/null && notify-send -a "Kill" "Killed" "$(ps -p "$selection" -o comm= 2>/dev/null || echo "process $selection")" || notify-send -a "Kill" "Failed" "Could not kill process $selection"
+exec htop

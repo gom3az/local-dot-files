@@ -55,7 +55,6 @@ hl.monitor({
 ---------------------
 local terminal = "kitty"
 local fileManager = "dolphin"
-local menu = "rofi -show drun"
 
 -------------------
 ---- AUTOSTART ----
@@ -192,23 +191,24 @@ hl.config({
 ---------------------
 
 local mainMod = "SUPER"
-hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/.config/rofi/scripts/screenshot.sh"))
+hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-shot.sh"))
 hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())
 hl.bind(
 	mainMod .. " + M",
-	hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch exit")
+	hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-power.sh")
 )
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("~/.config/scripts/wallpaper-rofi.sh"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.config/scripts/theme-switcher.sh rofi"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-center.sh"))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-launch.sh"))
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-launch.sh"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-wallpaper.sh"))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-theme.sh"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
-hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh sel"))
+hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-clip.sh"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.config/scripts/audio-mixer-toggle.sh"))
@@ -281,4 +281,18 @@ hl.window_rule({
 	match = { class = "kitty-wiremix" },
 	float = true,
 	size = { 640, 420 },
+})
+
+-- Floating kitty popup menus (flex TUIs + htop kill-menu, launched via popup.sh).
+hl.window_rule({
+	name = "popup-menu",
+	match = { class = "kitty-menu" },
+	float = true,
+	size = { 640, 420 },
+})
+hl.window_rule({
+	name = "popup-menu-wide",
+	match = { class = "kitty-menu-wide" },
+	float = true,
+	size = { 1000, 600 },
 })

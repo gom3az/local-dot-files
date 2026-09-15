@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # =============================================================================
-# set-wallpaper.sh - Universal wallpaper setter with theme generation
+# set-wallpaper.sh - Universal wallpaper setter
 # =============================================================================
 # Usage: set-wallpaper.sh <path_to_image>
 #
 # This script:
 # 1. Updates hyprpaper.conf with the new wallpaper
 # 2. Reloads hyprpaper
-# 3. Triggers theme generation from the new wallpaper
+#
+# It deliberately does NOT touch the theme: changing the wallpaper leaves the
+# current colors alone. Themes are switched explicitly with `flex theme`
+# (SUPER+T), and colors are only re-extracted when generate-theme.sh is run by
+# hand.
 #
 # Can be used as a replacement for direct hyprpaper.conf edits or
 # integrated with other wallpaper setters.
@@ -16,7 +20,6 @@
 set -euo pipefail
 
 HYPRLAND_CONF="$HOME/.config/hypr/hyprpaper.conf"
-GENERATE_SCRIPT="$HOME/.config/scripts/generate-theme.sh"
 WALLPAPER_CACHE="$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
 
 info() { echo -e "\033[0;32m[SET-WP]\033[0m $1"; }
@@ -81,11 +84,6 @@ EOF
 if [[ -d "$(dirname "$WALLPAPER_CACHE")" ]]; then
     mkdir -p "$(dirname "$WALLPAPER_CACHE")"
     echo "$IMAGE_PATH" > "$WALLPAPER_CACHE"
-fi
-
-# Generate theme
-if [[ -x "$GENERATE_SCRIPT" ]]; then
-    "$GENERATE_SCRIPT" "$IMAGE_PATH"
 fi
 
 # Release swaync inhibitor

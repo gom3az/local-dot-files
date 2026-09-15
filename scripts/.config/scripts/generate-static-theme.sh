@@ -166,46 +166,6 @@ cat > "$OUTPUT_DIR/theme.css" << CSSEOF
 @define-color color15 $COLOR15;
 CSSEOF
 
-# === Generate colors.rasi ===
-cat > "$OUTPUT_DIR/colors.rasi" << RASITMP
-/* Static theme: $THEME_NAME */
-* {
-    background: $BG;
-    foreground: $FG;
-    background-color: $BG;
-    border-color: $BG;
-    separatorcolor: $BG;
-    normal-foreground: $FG;
-    normal-background: $SURFACE0;
-    selected-normal-foreground: $MAUVE;
-    selected-normal-background: $SURFACE1;
-    alternate-normal-foreground: $FG;
-    alternate-normal-background: $SURFACE0;
-    overlay0: $OVERLAY0;
-    overlay1: $OVERLAY1;
-    overlay2: $OVERLAY2;
-    surface0: $SURFACE0;
-    surface1: $SURFACE1;
-    surface2: $SURFACE2;
-    subtext0: $SUBTEXT0;
-    subtext1: $SUBTEXT1;
-    urgent-foreground: $RED;
-    urgent-background: $SURFACE0;
-    selected-urgent-foreground: $MAUVE;
-    selected-urgent-background: $SURFACE1;
-    active-foreground: $GREEN;
-    active-background: $SURFACE0;
-    selected-active-foreground: $MAUVE;
-    selected-active-background: $SURFACE1;
-    font: "$FONT_SANS $FONT_SIZE";
-    spacing: ${S_TIGHT/px/};
-    border: 0;
-    border-radius: $W_RADIUS;
-    margin: 0;
-    padding: 0;
-}
-RASITMP
-
 # === Generate theme.lua ===
 cat > "$OUTPUT_DIR/theme.lua" << LUAEOF
 -- Static theme: $THEME_NAME

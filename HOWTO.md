@@ -10,7 +10,6 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `kitty` | `~/.config/kitty` |
 | `lazydocker` | `~/.config/lazydocker` |
 | `nvim` | `~/.config/nvim` |
-| `rofi` | `~/.config/rofi` |
 | `themes` | `~/.config/themes` |
 | `tmux` | `~/.tmux`, `~/.tmux.conf` |
 | `scripts` | `~/.config/scripts` |
@@ -22,7 +21,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/).
 ```bash
 git clone <repo-url> ~/dotfiles
 cd ~/dotfiles
-stow hypr kitty nvim rofi scripts themes tmux waybar zsh
+stow hypr kitty nvim scripts themes tmux waybar zsh
 ```
 
 ## Commands

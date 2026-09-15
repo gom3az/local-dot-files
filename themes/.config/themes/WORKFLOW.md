@@ -3,25 +3,33 @@
 ## Architecture
 
 ```
-SUPER+W → kitty → yazi (pick wallpaper)
-                          ↓
-                 set-wallpaper.sh
-                    ├─ updates hyprpaper.conf (persistence)
-                    ├─ updates wallpaper via hyprpaper socket
-                    └─ calls generate-theme.sh
-                              ├─ extract-colors.py (Pillow k-means via pywal16)
-                              ├─ loads design tokens from tokens.json
-                              ├─ applies overrides from overrides/global.json
-                              ├─ generates theme.css   → symlinked to ~/.config/waybar/
-                              ├─ generates theme.rasi  → symlinked to ~/.config/rofi/
-                              ├─ generates theme.lua   → symlinked to ~/.config/hypr/
-                              ├─ generates kitty.conf  → symlinked to ~/.config/kitty/
-                              ├─ generates yazi.toml   → symlinked to ~/.config/yazi/
-                              ├─ generates tmux-colors.conf → symlinked to ~/.config/tmux/
-                              ├─ generates nvim-colors.lua  → symlinked to ~/.config/nvim/lua/theme.lua
-                              ├─ saves to available/<name>/ for reuse
-                              └─ reloads waybar + hyprland + kitty
+SUPER+W → kitty popup → flex wallpaper (pick an image)
+                              ↓
+                     set-wallpaper.sh
+                        ├─ updates hyprpaper.conf (persistence)
+                        └─ updates wallpaper via hyprpaper socket
 ```
+
+Changing the wallpaper does **not** change the theme: `set-wallpaper.sh` only
+swaps the image, so your current colors survive a wallpaper change. Colors are
+re-extracted from an image only when `generate-theme.sh` is run by hand:
+
+```
+generate-theme.sh [wallpaper] [--save-as <name>]
+   ├─ extract-colors.py (Pillow k-means via pywal16)
+   ├─ loads design tokens from tokens.json
+   ├─ applies overrides from overrides/global.json
+   ├─ generates theme.css   → symlinked to ~/.config/waybar/
+   ├─ generates theme.lua   → symlinked to ~/.config/hypr/
+   ├─ generates kitty.conf  → symlinked to ~/.config/kitty/
+   ├─ generates yazi.toml   → symlinked to ~/.config/yazi/
+   ├─ generates tmux-colors.conf → symlinked to ~/.config/tmux/
+   ├─ generates nvim-colors.lua  → symlinked to ~/.config/nvim/lua/theme.lua
+   ├─ saves to available/<name>/ only when --save-as is given
+   └─ reloads waybar + hyprland + kitty
+```
+
+To switch between the saved themes, use `flex theme` (`SUPER+T`).
 
 ## Multiple Named Themes
 
@@ -33,7 +41,6 @@ The system supports saving and switching between multiple named themes.
 ~/.config/themes/
 ├── current/                    # Active theme (app configs symlink here)
 ├── available/                  # Saved named themes
-│   ├── auto/                   # Latest wallpaper-generated theme
 │   ├── catppuccin-mocha/       # Pre-built static themes
 │   ├── tokyo-night/
 │   └── gruvbox/
@@ -46,7 +53,8 @@ The system supports saving and switching between multiple named themes.
 ### Theme Management
 
 ```bash
-# Save auto-generated theme with a custom name
+# Extract colors from a wallpaper (current one by default) into current/,
+# and keep it under a name you can switch back to later
 generate-theme.sh --save-as my-wallpaper
 
 # List available themes
@@ -55,8 +63,8 @@ theme-switcher.sh list
 # Switch to a saved theme
 theme-switcher.sh activate catppuccin-mocha
 
-# Rofi-based theme picker
-theme-switcher.sh rofi
+# TUI theme picker (flex)
+theme-switcher.sh pick
 
 # See current theme
 theme-switcher.sh current
@@ -78,11 +86,11 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Token | Default | Used By |
 |-------|---------|---------|
-| `fonts.sans` | NotoSans Nerd Font | Waybar, Kitty, Rofi |
+| `fonts.sans` | NotoSans Nerd Font | Waybar, Kitty |
 | `fonts.mono` | NotoSans Nerd Font | Kitty |
-| `fonts.size` | 12px | Waybar, Kitty, Rofi |
-| `radii.window` | 0 | Waybar, Rofi |
-| `spacing.tight` | 4px | Waybar, Rofi |
+| `fonts.size` | 12px | Waybar, Kitty |
+| `radii.window` | 0 | Waybar |
+| `spacing.tight` | 4px | Waybar |
 | `spacing.normal` | 8px | Waybar |
 | `spacing.wide` | 16px | Waybar |
 | `opacity.background` | 0.8 | Kitty |
@@ -94,7 +102,6 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 | Component | Config File | Theme Source |
 |---|---|---|
 | Waybar | `~/.config/waybar/style.css` → `@import` → `theme.css` → symlink → | `~/.config/themes/current/theme.css` |
-| Rofi | `~/.config/rofi/config.rasi` → imports → `theme.rasi` → imports → `theme.rasi` → symlink → | `~/.config/themes/current/theme.rasi` |
 | Hyprland | `~/.config/hypr/hyprland.lua` → `dofile()` → `theme.lua` → symlink → | `~/.config/themes/current/theme.lua` |
 | Kitty | `~/.config/kitty/kitty.conf` → `include` → `current-theme.conf` → symlink → | `~/.config/themes/current/kitty.conf` |
 | Yazi | `~/.config/yazi/theme.toml` → symlink → | `~/.config/themes/current/yazi.toml` |
@@ -106,25 +113,22 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Script | Purpose | Interactive? |
 |---|---|---|
-| `~/.config/scripts/wallpaper-rofi.sh` | Rofi grid wallpaper picker with image previews | Yes (rofi) |
-| `~/.config/scripts/set-wallpaper.sh` | Sets wallpaper via hyprpaper socket | No |
-| `~/.config/scripts/generate-theme.sh` | Extracts colors, generates all format files, manages symlinks, reloads configs | No |
+| `~/dotfiles/flex/wrappers/flex-wallpaper.sh` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane; `wallpaper-picker.sh` is a delegating stub | Yes (kitty popup) |
+| `~/.config/scripts/set-wallpaper.sh` | Sets wallpaper via hyprpaper socket. Leaves the theme untouched | No |
+| `~/.config/scripts/generate-theme.sh` | Extracts colors from a wallpaper, generates all format files, manages symlinks, reloads configs. Persists to `available/` only with `--save-as` | No |
 | `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
-| `~/.config/scripts/theme-switcher.sh` | CLI + rofi GUI for switching named themes | Yes (rofi) |
+| `~/.config/scripts/theme-switcher.sh` | CLI + TUI picker (`flex theme`) for switching named themes | Yes (kitty popup) |
 | `~/.config/scripts/generate-static-theme.sh` | Builds a named theme from a JSON color definition | No |
-| `~/.config/scripts/cliphist.sh` | Clipboard history via wl-paste --watch, rofi browse | Yes (rofi) |
-| `~/.config/scripts/kill-menu.sh` | Rofi-based process killer | Yes (rofi) |
-| `~/.config/scripts/patch-ml4w-wallpaper.sh` | Hooks theme generation into ml4w-wallpaper | No |
+| `~/.config/scripts/cliphist.sh` | Clipboard history via wl-paste --watch, `flex clip` browse | Yes (kitty popup) |
+| `~/.config/scripts/kill-menu.sh` | Live TUI process manager (htop-based) | Yes (kitty popup) |
 
 ## Usage
 
-### Change wallpaper (auto theme)
+### Change wallpaper
 ```
-SUPER+W  →  yazi opens in kitty  →  navigate & select image
-                                    →  wallpaper changes
-                                    →  colors auto-extracted
-                                    →  waybar/hyprland/kitty reloaded
-                                    →  theme saved to available/auto-<timestamp>/
+SUPER+W  →  flex wallpaper opens in kitty  →  navigate & select image
+                                           →  wallpaper changes
+                                           →  theme stays as it is
 ```
 
 Or directly:
@@ -136,6 +140,9 @@ Or directly:
 ```bash
 generate-theme.sh --save-as my-favorite
 ```
+
+Without `--save-as`, `generate-theme.sh` refreshes `current/` in place and
+leaves `available/` untouched.
 
 ### Switch to a static theme
 ```bash
@@ -178,16 +185,15 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 
 | Binding | Action |
 |---|---|
-| `SUPER+W` | Open wallpaper picker (yazi in kitty) |
-| `SUPER+T` | Open theme switcher (rofi) |
+| `SUPER+W` | Open wallpaper picker (`flex wallpaper` in kitty) — sets the image only, theme unchanged |
+| `SUPER+T` | Open theme switcher (flex) |
 | `SUPER+N` | Toggle swaync notification panel |
-| `SUPER+SHIFT+V` | Browse clipboard history (rofi) |
-| `SUPER+SHIFT+Esc` | Kill a process (rofi) |
-| `SUPER+R` / `SUPER+Space` | Launch rofi app launcher |
+| `SUPER+SHIFT+V` | Browse clipboard history (flex) |
+| `SUPER+SHIFT+Esc` | Kill a process (htop TUI) |
+| `SUPER+R` / `SUPER+Space` | Launch app launcher (flex) |
 
 ## Troubleshooting
 
-- **Rofi colors not updating** → Rofi reads theme on launch; just close and re-open it
 - **Waybar colors stale** → SIGUSR2 is sent automatically by generate-theme.sh, or `pkill -SIGUSR2 waybar`
 - **Kitty colors stale** → SIGUSR1 is sent automatically, or `killall -SIGUSR1 kitty`
 - **Hyprland borders wrong** → `hyprctl reload` is called automatically

@@ -4,7 +4,6 @@
 # =============================================================================
 # Generates colors automatically from wallpaper and propagates to:
 #   - Waybar (CSS)
-#   - Rofi (RASI)
 #   - Hyprland (Lua snippet)
 #   - Kitty (conf)
 #   - Yazi (TOML)
@@ -17,6 +16,10 @@
 #   generate-theme.sh [wallpaper_path]
 #   generate-theme.sh --save-as my-theme-name [wallpaper_path]
 #   generate-theme.sh --no-reload [wallpaper_path]
+#
+# A theme is written to local `current/` only. Nothing is added to
+# `available/` unless an explicit `--save-as <name>` is given, so running this
+# never leaves an unnamed auto theme behind.
 # =============================================================================
 
 set -euo pipefail
@@ -31,7 +34,9 @@ WALLPAPER_CACHE="$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
 export PATH="$HOME/.local/bin:$PATH"
 HYPRLAND_CONF="$HOME/.config/hypr/hyprpaper.conf"
 
-THEME_NAME="auto"
+# Empty unless `--save-as <name>` is passed: an unnamed run only refreshes
+# `current/` and is never persisted to `available/`.
+THEME_NAME=""
 
 # === Color Functions ===
 info() { echo -e "\033[0;32m[INFO]\033[0m $1"; }
@@ -283,57 +288,6 @@ generate_css() {
 @define-color color13 $COLOR13;
 @define-color color14 $COLOR14;
 @define-color color15 $COLOR15;
-EOF
-
-    mv "$output.tmp" "$output"
-}
-
-# === Generate RASI (Rofi) ===
-generate_rasi() {
-    local wallpaper="$1"
-    local output="$THEME_DIR/colors.rasi"
-    info "Generating RASI: $(basename "$output")"
-
-    cat > "$output.tmp" << EOF
-/* Auto-generated theme from: $(basename "$wallpaper") */
-/* Generated: $(date '+%Y-%m-%d %H:%M:%S') */
-/* DO NOT EDIT - changes will be overwritten */
-
-* {
-    background: $BG;
-    foreground: $FG;
-    background-color: $BG;
-    border-color: $BG;
-    separatorcolor: $BG;
-    normal-foreground: $FG;
-    normal-background: $SURFACE0;
-    selected-normal-foreground: $MAUVE;
-    selected-normal-background: $SURFACE1;
-    alternate-normal-foreground: $FG;
-    alternate-normal-background: $SURFACE0;
-    overlay0: $OVERLAY0;
-    overlay1: $OVERLAY1;
-    overlay2: $OVERLAY2;
-    surface0: $SURFACE0;
-    surface1: $SURFACE1;
-    surface2: $SURFACE2;
-    subtext0: $SUBTEXT0;
-    subtext1: $SUBTEXT1;
-    urgent-foreground: $RED;
-    urgent-background: $SURFACE0;
-    selected-urgent-foreground: $MAUVE;
-    selected-urgent-background: $SURFACE1;
-    active-foreground: $GREEN;
-    active-background: $SURFACE0;
-    selected-active-foreground: $MAUVE;
-    selected-active-background: $SURFACE1;
-    font: "$FONT_SANS $FONT_SIZE";
-    spacing: 4;
-    border: 0;
-    border-radius: 0;
-    margin: 0;
-    padding: 0;
-}
 EOF
 
     mv "$output.tmp" "$output"
@@ -843,7 +797,6 @@ update_symlinks() {
     local configs=(
         "$HOME/.config/waybar/theme.css"
         "$HOME/.config/waybar/waybar-fonts.css"
-        "$HOME/.config/rofi/colors.rasi"
         "$HOME/.config/hypr/theme.lua"
         "$HOME/.config/kitty/current-theme.conf"
         "$HOME/.config/yazi/theme.toml"
@@ -856,7 +809,6 @@ update_symlinks() {
     local targets=(
         "$THEME_DIR/theme.css"
         "$THEME_DIR/waybar-fonts.css"
-        "$THEME_DIR/colors.rasi"
         "$THEME_DIR/theme.lua"
         "$THEME_DIR/kitty.conf"
         "$THEME_DIR/yazi.toml"
@@ -890,14 +842,17 @@ update_symlinks() {
 save_to_available() {
     local name="$1"
 
-    if [[ "$name" == "auto" ]]; then
-        name="auto-$(date +%Y%m%d-%H%M%S)"
+    # Unnamed run: `current/` was refreshed but no theme was named, so there is
+    # nothing to bookmark in `available/`.
+    if [[ -z "$name" ]]; then
+        info "No theme name given, not saving to available/ (use --save-as <name>)"
+        return 0
     fi
 
     local dest="$AVAILABLE_DIR/$name"
     mkdir -p "$dest"
 
-    for f in theme.css colors.rasi theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua nvim-hl.lua lazygit.yml lazydocker.yml metadata.json; do
+    for f in theme.css theme.lua kitty.conf waybar-fonts.css yazi.toml tmux-colors.conf nvim-colors.lua nvim-hl.lua lazygit.yml lazydocker.yml metadata.json; do
         cp "$THEME_DIR/$f" "$dest/$f" 2>/dev/null || true
     done
 
@@ -921,8 +876,6 @@ reload_configs() {
         warn "  hyprctl not available, skipping Hyprland reload"
     fi
 
-    info "  Rofi will use new theme on next launch"
-
     if pgrep -x "kitty" > /dev/null 2>&1; then
         killall -SIGUSR1 kitty 2>/dev/null && info "  Kitty reloaded (SIGUSR1)" || warn "  Kitty reload failed"
     else
@@ -940,13 +893,16 @@ reload_configs() {
 save_metadata() {
     local wallpaper="$1"
     local metadata="$THEME_DIR/metadata.json"
+    # An unnamed run is not a saved theme, so no `available/<name>` row can
+    # match it (the theme pickers leave `Active` unmarked, which is correct).
+    local name="${THEME_NAME:-unsaved}"
 
     cat > "$metadata" << EOF
 {
     "wallpaper": "$wallpaper",
     "generated": "$(date -Iseconds)",
     "generator": "auto-extract",
-    "theme_name": "$THEME_NAME",
+    "theme_name": "$name",
     "mode": "dark",
     "overrides_applied": $([[ -f "$OVERRIDE_FILE" ]] && echo "true" || echo "false")
 }
@@ -1000,7 +956,6 @@ main() {
     load_tokens
 
     generate_css "$wallpaper"
-    generate_rasi "$wallpaper"
     generate_lua "$wallpaper"
     generate_kitty "$wallpaper"
     generate_yazi "$wallpaper"
@@ -1011,6 +966,10 @@ main() {
     generate_lazydocker "$wallpaper"
 
     update_symlinks
+    # Metadata first: `save_to_available` copies `current/` wholesale, so the
+    # saved theme would otherwise inherit a stale `theme_name` (or none at all
+    # on a first run).
+    save_metadata "$wallpaper"
     save_to_available "$THEME_NAME"
 
     if [[ "$RELOAD" == "true" ]]; then
@@ -1018,8 +977,6 @@ main() {
     else
         info "Skipping config reload (--no-reload)"
     fi
-
-    save_metadata "$wallpaper"
 
     notify "Theme Updated" "Colors generated from $(basename "$wallpaper")"
     info "=== Theme Generation Complete ==="

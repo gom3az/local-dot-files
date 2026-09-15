@@ -6,7 +6,7 @@
 #   theme-switcher.sh list              # List available themes
 #   theme-switcher.sh current           # Show active theme name
 #   theme-switcher.sh activate <name>   # Activate a saved theme
-#   theme-switcher.sh rofi              # Rofi-based theme picker GUI
+#   theme-switcher.sh pick              # TUI theme picker popup
 #   theme-switcher.sh delete <name>     # Delete a saved theme
 # =============================================================================
 
@@ -71,7 +71,7 @@ activate_theme() {
         exit 1
     fi
 
-    if [[ ! -f "$src/theme.css" && ! -f "$src/colors.css" && ! -f "$src/colors.rasi" ]]; then
+    if [[ ! -f "$src/theme.css" && ! -f "$src/colors.css" ]]; then
         error "Theme '$name' has no theme files"
         exit 1
     fi
@@ -106,7 +106,6 @@ json.dump(d, open('$meta', 'w'), indent=4)
     info "Updating symlinks..."
     local config_targets=(
         "$HOME/.config/waybar/theme.css"
-        "$HOME/.config/rofi/colors.rasi"
         "$HOME/.config/hypr/theme.lua"
         "$HOME/.config/kitty/current-theme.conf"
         "$HOME/.config/yazi/theme.toml"
@@ -116,7 +115,6 @@ json.dump(d, open('$meta', 'w'), indent=4)
     )
     local theme_files=(
         "$THEME_DIR/theme.css"
-        "$THEME_DIR/colors.rasi"
         "$THEME_DIR/theme.lua"
         "$THEME_DIR/kitty.conf"
         "$THEME_DIR/yazi.toml"
@@ -174,29 +172,13 @@ delete_theme() {
     info "Deleted theme: $name"
 }
 
-# === Rofi GUI picker ===
-rofi_picker() {
-    if ! command -v rofi &>/dev/null; then
-        error "rofi is not installed"
-        exit 1
-    fi
-
-    local themes=()
-    while IFS= read -r dir; do
-        themes+=("$(basename "$dir")")
-    done < <(find "$AVAILABLE_DIR" -maxdepth 1 -type d ! -name "." | sort)
-
-    if [[ ${#themes[@]} -eq 0 ]]; then
-        notify "Theme Switcher" "No available themes found"
-        exit 0
-    fi
-
-    local selected
-    selected=$(printf "%s\n" "${themes[@]}" | rofi -dmenu -p "Select Theme" -i)
-
-    if [[ -n "$selected" ]]; then
-        activate_theme "$selected"
-    fi
+# === Flexible TUI picker (cut over to `flex theme`, M3) ===
+# The bash Flex UI that lived here is retired: `flex theme` renders the
+# picker and `flex-theme.sh` calls back into `activate`. This entry point
+# only delegates so `theme-switcher.sh pick` keeps working;
+# list/current/activate/delete below are untouched.
+pick() {
+    exec "$HOME/dotfiles/flex/wrappers/flex-theme.sh" "$@"
 }
 
 # === Main ===
@@ -224,8 +206,8 @@ main() {
             fi
             delete_theme "$2"
             ;;
-        rofi)
-            rofi_picker
+        pick)
+            pick
             ;;
         help|--help|-h)
             echo "Usage: theme-switcher.sh <command>"
@@ -235,7 +217,7 @@ main() {
             echo "  current                 Show active theme name"
             echo "  activate <name>         Activate a saved theme"
             echo "  delete <name>           Delete a saved theme"
-            echo "  rofi                    Rofi-based theme picker"
+            echo "  pick                    TUI theme picker popup"
             echo "  help                    Show this help"
             ;;
         *)

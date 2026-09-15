@@ -1,24 +1,23 @@
-# Auto-generated theme from: Tokyo Night (static)
-# Generated: 2026-05-24 11:18:15
+# Auto-generated theme from: Catppuccin Mocha (static)
 # DO NOT EDIT - changes will be overwritten
 
 gui:
   theme:
     activeBorderColor:
-      - '#bb9af7'
+      - '#cba6f7'
       - bold
     inactiveBorderColor:
-      - '#414868'
+      - '#585b70'
     selectedLineBgColor:
-      - '#2f3346'
+      - '#45475a'
     optionsTextColor:
-      - '#bb9af7'
+      - '#cba6f7'
 
 stats:
   graphs:
     - caption: CPU (%)
       statPath: DerivedStats.CPUPercentage
-      color: '#f7768e'
+      color: '#f38ba8'
     - caption: Memory (%)
       statPath: DerivedStats.MemoryPercentage
-      color: '#9ece6a'
+      color: '#a6e3a1'

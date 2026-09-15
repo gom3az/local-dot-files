@@ -1,14 +1,17 @@
--- Auto-generated neovim highlights: tokyo-night
+-- Auto-generated neovim highlights from: urban-vintage-78A265wPiO4-unsplash.jpg
+-- Generated: 2026-09-15 09:50:43
+-- DO NOT EDIT - changes will be overwritten
+
 return {
-    bg         = "#1a1b26",
-    bg_alt     = "#24283b",
-    fg         = "#a9b1d6",
-    fg_alt     = "#8b93b3",
-    accent     = "#bb9af7",
-    muted      = "#414868",
-    border     = "#2f3346",
-    error      = "#f7768e",
-    warning    = "#e0af68",
-    info       = "#9ece6a",
-    hint       = "#7dcfff",
+    bg         = "#1f1f0d",
+    bg_alt     = "#303020",
+    fg         = "#c7c7c2",
+    fg_alt     = "#79796f",
+    accent     = "#EE96A6",
+    muted      = "#626255",
+    border     = "#474738",
+    error      = "#f1f616",
+    warning    = "#ffedb5",
+    info       = "#e0f1e0",
+    hint       = "#ffedbb",
 }
