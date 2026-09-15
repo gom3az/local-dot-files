@@ -25,7 +25,17 @@ case "$line" in
     *) echo "flex-theme: unexpected output: $line" >&2; exit 1 ;;
 esac
 rest="${line#* theme }"
-name="${rest%% *}"
+id="${rest%% *}"
+[[ "$id" != */* && "$id" != *$'\n'* && -n "$id" ]] || { echo "flex-theme: bad id: $id" >&2; exit 1; }
+
+# Empty-scan placeholder (`ACTION: theme noop (No themes found)`): nothing to
+# activate, and the shared `noop` arm exits 0 (B-026).
+[[ "$id" != "noop" ]] || exit 0
+
+# The id is a space-free row hash, not the theme name: a theme directory may
+# be called `My Theme` and could not survive the whitespace-delimited
+# ACTION: token. Resolve it back to the name before activating (B-021).
+name="$(flex theme --resolve "$id")" || { echo "flex-theme: unknown id: $id" >&2; exit 1; }
 [[ "$name" != */* && "$name" != *$'\n'* && -n "$name" ]] || { echo "flex-theme: bad name: $name" >&2; exit 1; }
 
 theme_switcher="${THEME_SWITCHER:-$HOME/.config/scripts/theme-switcher.sh}"

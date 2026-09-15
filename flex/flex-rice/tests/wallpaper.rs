@@ -638,3 +638,24 @@ fn wrapper_rejects_malformed_action_lines_and_unresolvable_ids() {
     assert!(!log.exists());
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+// --- Resolve error format (B-022) -----------------------------------------------
+
+/// Same contract as `clip`: `main` owns the single `flex: error:` prefix,
+/// so an unknown wallpaper id is reported without repeating it.
+#[test]
+fn unknown_resolve_id_is_reported_with_a_single_prefix() {
+    let home = scratch("resolve-error");
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_flex"))
+        .args(["wallpaper", "--resolve", "deadbeef"])
+        .env("HOME", &home)
+        .env_remove("WALLPAPER_DIRS")
+        .output()
+        .expect("run flex wallpaper --resolve");
+    let _ = std::fs::remove_dir_all(&home);
+    assert!(!output.status.success(), "unknown id exits non-zero");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "flex: error: wallpaper: unknown id 'deadbeef'\n"
+    );
+}

@@ -165,7 +165,15 @@ label="$(center_unescape "$label_esc")"
 case "$kind" in
     select)
         case "$id" in
-            launch:*) do_launch "${id#launch:}" ;;
+            launch:*)
+                # The id is a space-free row hash, not a file name (B-021):
+                # resolve it to the desktop-id before touching the disk.
+                desk_id="$(flex launch --resolve "${id#launch:}")" || {
+                    echo "flex-center: unknown launch id: ${id#launch:}" >&2
+                    exit 1
+                }
+                do_launch "$desk_id"
+                ;;
             wifi) do_wifi "$label" ;;
             bt:*) do_bt_toggle "${id#bt:}" ;;
             pwlock|pwsuspend|pwreboot|pwoff|pwlogout) do_power "$id" ;;

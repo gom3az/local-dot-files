@@ -57,18 +57,68 @@ fn nodisplay_hidden_and_malformed_entries_are_skipped() {
 }
 
 #[test]
-fn action_ids_are_desktop_ids_and_terminal_rows_are_marked() {
+fn action_ids_are_space_free_row_hashes_and_terminal_rows_are_marked() {
     let tab = launch::tab_from_entries(&fixture_entries());
     assert_eq!(tab.name, launch::TAB_NAME);
     assert!(tab.bare_rows, "launcher renders bare rows");
     assert!(!tab.deletable, "launcher rows are non-deletable");
     let firefox = tab.rows.first().expect("first row");
-    assert_eq!(firefox.id.as_str(), "firefox.desktop");
     assert_eq!(firefox.label, "Firefox");
     assert_eq!(firefox.meta, None);
     let htop = tab.rows.get(1).expect("second row");
-    assert_eq!(htop.id.as_str(), "terminal-app.desktop");
     assert_eq!(htop.meta.as_deref(), Some(launch::TERMINAL_META));
+    // The id is a hash, not the desktop-id: the `ACTION:` protocol splits
+    // the id on whitespace, so the id must be one token that the wrapper
+    // resolves back (B-021).
+    let dirs = vec![fixtures_dir()];
+    for (row, desktop_id) in tab.rows.iter().zip([
+        "firefox.desktop",
+        "terminal-app.desktop",
+        "onlyshow-app.desktop",
+        "percent-app.desktop",
+    ]) {
+        assert!(
+            !row.id.as_str().contains(char::is_whitespace),
+            "id is a single token: {:?}",
+            row.id.as_str()
+        );
+        assert_eq!(
+            launch::resolve_id_in(&dirs, row.id.as_str()).as_deref(),
+            Some(desktop_id),
+            "every row id resolves back to its desktop-id"
+        );
+    }
+}
+
+/// B-021: a `.desktop` file may be named with spaces; the row id must stay
+/// one whitespace-free token and still resolve back to the real file name.
+#[test]
+fn space_bearing_desktop_ids_round_trip_through_resolve() {
+    let dir = scratch("spaced-id");
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).expect("fixture dir");
+    let desktop_id = "My App.desktop";
+    std::fs::write(
+        dir.join(desktop_id),
+        "[Desktop Entry]\nName=My App\nExec=myapp %U\n",
+    )
+    .expect("fixture entry");
+
+    let entries = launch::scan_dirs(std::slice::from_ref(&dir));
+    let rows = launch::rows(&entries);
+    assert_eq!(rows.len(), 1);
+    let id = rows[0].id.as_str();
+    assert!(
+        !id.contains(char::is_whitespace),
+        "space-bearing name is hashed: {id:?}"
+    );
+    let resolved = launch::resolve_id_in(std::slice::from_ref(&dir), id);
+    std::fs::remove_dir_all(&dir).expect("cleanup");
+    assert_eq!(
+        resolved.as_deref(),
+        Some(desktop_id),
+        "the hash resolves back to the real file name"
+    );
 }
 
 #[test]
@@ -108,6 +158,63 @@ fn user_dir_overrides_system_dir_on_duplicate_ids() {
     assert_eq!(entries[0].exec, "user-app");
 }
 
+// --- Diagnostic stream (B-020) --------------------------------------------------
+
+/// Unique scratch dir per call: these tests run in parallel and must not
+/// share a path (same class of bug as B-007/B-013).
+fn scratch(name: &str) -> PathBuf {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static SEQ: AtomicU64 = AtomicU64::new(0);
+    let seq = SEQ.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!("flex-launch-{}-{name}-{seq}", std::process::id()))
+}
+
+/// `NoDisplay`/`Hidden` entries are skipped *by design*, so the real binary
+/// must warn only about genuinely malformed `.desktop` files.
+///
+/// Regression guard for B-020: before the fix this printed one "skipping
+/// malformed entry" line per hidden entry — 202 false diagnostics on the
+/// reference host, on every `flex launch` and every `flex center` open.
+#[test]
+fn only_malformed_entries_reach_stderr() {
+    let home = scratch("diagnostics");
+    let _ = std::fs::remove_dir_all(&home);
+    let apps = home.join(".local/share/applications");
+    std::fs::create_dir_all(&apps).expect("apps dir");
+    for fixture in [
+        "firefox.desktop",
+        "nodisplay-app.desktop",
+        "hidden-app.desktop",
+        "noexec-app.desktop",
+        "malformed.desktop",
+    ] {
+        std::fs::copy(fixtures_dir().join(fixture), apps.join(fixture)).expect("fixture copy");
+    }
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_flex"))
+        .arg("launch")
+        .env("HOME", &home)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .output()
+        .expect("run flex launch");
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let prefix = home.display().to_string();
+    std::fs::remove_dir_all(&home).expect("cleanup");
+
+    let mut reported: Vec<&str> = stderr
+        .lines()
+        .filter(|line| line.starts_with("flex: launch: skipping malformed entry"))
+        .filter(|line| line.contains(&prefix))
+        .map(|line| line.rsplit('/').next().expect("path segment"))
+        .collect();
+    reported.sort_unstable();
+    assert_eq!(
+        reported,
+        vec!["malformed.desktop", "noexec-app.desktop"],
+        "only the two broken fixtures are worth a diagnostic; stderr was:\n{stderr}"
+    );
+}
+
 // --- Key-seq replays ----------------------------------------------------------
 
 #[test]
@@ -121,10 +228,15 @@ fn keyseq_type_fir_enter_selects_firefox() {
     );
     assert_eq!(outcome, KeyOutcome::Select);
     let row = menu.app.focused_row().expect("focused row");
-    assert_eq!(row.id.as_str(), "firefox.desktop");
+    assert_eq!(
+        launch::resolve_id_in(&[fixtures_dir()], row.id.as_str()).as_deref(),
+        Some("firefox.desktop"),
+        "the selected row id resolves to Firefox's desktop-id"
+    );
     assert_eq!(row.label, "Firefox");
-    // The wrapper's ACTION: line for this selection:
-    // `ACTION: launch firefox.desktop Firefox` (exit 0).
+    // The wrapper's ACTION: line for this selection is
+    // `ACTION: launch <row-hash> Firefox` (exit 0); `flex-launch.sh`
+    // resolves the hash with `flex launch --resolve` before launching.
     assert_eq!(menu.provider, "launch");
 }
 
@@ -319,4 +431,196 @@ fn parity_against_app_cache() {
         bash_only.is_empty() && rust_only.is_empty(),
         "name sets must match"
     );
+}
+
+// --- Wrapper dispatch (B-021) -------------------------------------------------
+
+fn wrapper_path() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("wrappers")
+        .join("flex-launch.sh")
+}
+
+/// Write an executable stub script.
+fn write_exe(path: &std::path::Path, body: &str) {
+    std::fs::write(path, body).expect("stub script");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755)).expect("chmod");
+    }
+}
+
+/// `flex-launch.sh` must treat the `ACTION:` id as a row hash: resolve it
+/// with `flex launch --resolve`, then launch from the real desktop-id. The
+/// fixture file is named with a space, which is the case the hash exists
+/// for (B-021).
+#[test]
+fn wrapper_resolves_the_row_hash_before_launching() {
+    let stub = scratch("wrapper");
+    let _ = std::fs::remove_dir_all(&stub);
+    std::fs::create_dir_all(&stub).expect("stub dir");
+    let home = stub.join("home");
+    let apps = home.join(".local/share/applications");
+    std::fs::create_dir_all(&apps).expect("apps dir");
+    std::fs::write(
+        apps.join("My App.desktop"),
+        "[Desktop Entry]\nName=My App\nExec=myapp %U\nTerminal=false\n",
+    )
+    .expect("desktop entry");
+    let resolve_log = stub.join("resolve.log");
+    let call_log = stub.join("calls.log");
+    write_exe(
+        &stub.join("flex"),
+        &format!(
+            "#!/usr/bin/env bash\nif [[ \"${{2:-}}\" == \"--resolve\" ]]; then\nprintf 'resolve %s\\n' \"${{3:-}}\" >> '{}'\nprintf '%s\\n' 'My App.desktop'\nexit 0\nfi\nprintf '%s\\n' 'ACTION: launch 0123456789abcdef My App'\n",
+            resolve_log.display()
+        ),
+    );
+    write_exe(
+        &stub.join("setsid"),
+        &format!(
+            "#!/usr/bin/env bash\nprintf 'setsid %s\\n' \"$*\" >> '{}'\n",
+            call_log.display()
+        ),
+    );
+
+    let output = std::process::Command::new("bash")
+        .arg(wrapper_path())
+        .env(
+            "PATH",
+            format!(
+                "{}:{}",
+                stub.display(),
+                std::env::var("PATH").unwrap_or_default()
+            ),
+        )
+        .env("HOME", &home)
+        // The popup re-exec is bind-path behavior; this emulates the
+        // in-popup half.
+        .env("POPUP_KITTY", "1")
+        .output()
+        .expect("run wrapper");
+    assert!(
+        output.status.success(),
+        "stderr: {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(&resolve_log)
+            .expect("resolve log")
+            .trim(),
+        "resolve 0123456789abcdef",
+        "the hash — not the file name — is resolved through the binary"
+    );
+    let calls = std::fs::read_to_string(&call_log).expect("call log");
+    assert_eq!(
+        calls.trim(),
+        "setsid -f myapp",
+        "field codes stripped, space-bearing desktop-id launched: {calls:?}"
+    );
+
+    // An id the provider cannot resolve must abort without running anything.
+    write_exe(
+        &stub.join("flex"),
+        "#!/usr/bin/env bash\nif [[ \"${2:-}\" == \"--resolve\" ]]; then\necho 'flex: error: launch: unknown id' >&2\nexit 1\nfi\nprintf '%s\\n' 'ACTION: launch 0123456789abcdef My App'\n",
+    );
+    std::fs::remove_file(&call_log).expect("reset log");
+    let output = std::process::Command::new("bash")
+        .arg(wrapper_path())
+        .env(
+            "PATH",
+            format!(
+                "{}:{}",
+                stub.display(),
+                std::env::var("PATH").unwrap_or_default()
+            ),
+        )
+        .env("HOME", &home)
+        .env("POPUP_KITTY", "1")
+        .output()
+        .expect("run wrapper");
+    assert!(!output.status.success(), "unresolvable id must fail");
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("unknown id: 0123456789abcdef"),
+        "wrapper names the id it could not resolve"
+    );
+    assert!(!call_log.exists(), "nothing launches on an unresolvable id");
+    let _ = std::fs::remove_dir_all(&stub);
+}
+
+// --- Empty-scan placeholder (B-026) -------------------------------------------
+
+/// With nothing to launch the menu must not be blank: `center` already
+/// showed `(No applications found)`, and the standalone picker now shows the
+/// same `noop` row instead of an empty list.
+#[test]
+fn empty_scan_shows_the_noop_placeholder() {
+    let tab = launch::tab_from_entries(&[]);
+    assert_eq!(tab.name, launch::TAB_NAME);
+    assert_eq!(tab.rows.len(), 1, "placeholder instead of a blank menu");
+    assert_eq!(tab.rows[0].id.as_str(), flex_rice::providers::NOOP_ID);
+    assert_eq!(tab.rows[0].label, launch::NO_APPS_LABEL);
+    assert_eq!(
+        tab.rows[0].label, "(No applications found)",
+        "bash-exact text"
+    );
+
+    // `Enter` on the placeholder selects it (a no-op for the wrapper), it
+    // does not quit or panic.
+    let mut menu = flex_rice::menu(launch::PROVIDER, vec![tab]);
+    let outcome = run::replay_keys(&mut menu, &[press(KeyCode::Enter)], run::test_base());
+    assert_eq!(outcome, KeyOutcome::Select);
+    let focused = menu.app.focused_row().expect("focused row");
+    assert_eq!(focused.id.as_str(), flex_rice::providers::NOOP_ID);
+}
+
+/// The placeholder's `noop` id must never reach the launcher: `flex-launch.sh`
+/// exits 0 without resolving or running anything (B-026).
+#[test]
+fn wrapper_treats_the_noop_placeholder_as_a_noop() {
+    let stub = scratch("wrapper-noop");
+    let _ = std::fs::remove_dir_all(&stub);
+    std::fs::create_dir_all(&stub).expect("stub dir");
+    let resolve_log = stub.join("resolve.log");
+    let call_log = stub.join("calls.log");
+    write_exe(
+        &stub.join("flex"),
+        &format!(
+            "#!/usr/bin/env bash\nif [[ \"${{2:-}}\" == \"--resolve\" ]]; then\nprintf 'resolve %s\\n' \"${{3:-}}\" >> '{}'\nprintf '%s\\n' 'My App.desktop'\nexit 0\nfi\nprintf '%s\\n' 'ACTION: launch noop (No applications found)'\n",
+            resolve_log.display()
+        ),
+    );
+    write_exe(
+        &stub.join("setsid"),
+        &format!(
+            "#!/usr/bin/env bash\nprintf 'setsid %s\\n' \"$*\" >> '{}'\n",
+            call_log.display()
+        ),
+    );
+    let output = std::process::Command::new("bash")
+        .arg(wrapper_path())
+        .env(
+            "PATH",
+            format!(
+                "{}:{}",
+                stub.display(),
+                std::env::var("PATH").unwrap_or_default()
+            ),
+        )
+        .env("HOME", stub.join("home"))
+        .env("POPUP_KITTY", "1")
+        .output()
+        .expect("run wrapper");
+    assert!(
+        output.status.success(),
+        "placeholder selection is not an error: {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        !resolve_log.exists(),
+        "noop short-circuits before the id lookup"
+    );
+    assert!(!call_log.exists(), "nothing is launched");
+    let _ = std::fs::remove_dir_all(&stub);
 }

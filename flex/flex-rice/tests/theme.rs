@@ -53,23 +53,51 @@ fn rows_carry_theme_names_wallpapers_and_active_marker() {
     assert_eq!(tab.name, theme_::TAB_NAME);
     assert!(tab.bare_rows, "themes use bare rows");
     assert!(!tab.deletable, "theme rows are non-deletable");
-    let rows: Vec<(&str, &str, Option<&str>)> = tab
+    let labels: Vec<(&str, Option<&str>)> = tab
         .rows
         .iter()
-        .map(|row| (row.id.as_str(), row.label.as_str(), row.meta.as_deref()))
+        .map(|row| (row.label.as_str(), row.meta.as_deref()))
         .collect();
     assert_eq!(
-        rows,
+        labels,
         vec![
-            (
-                "catppuccin-mocha",
-                "catppuccin-mocha",
-                Some("mocha-wall.png  Active")
-            ),
-            ("tokyo-night", "tokyo-night", Some("tokyo.jpg")),
-            ("bare", "bare", Some("(no metadata)")),
+            ("catppuccin-mocha", Some("mocha-wall.png  Active")),
+            ("tokyo-night", Some("tokyo.jpg")),
+            ("bare", Some("(no metadata)")),
         ]
     );
+    // The id is a space-free hash of the theme name (B-021), and every row
+    // id resolves back to its own label through the same directory scan
+    // `flex-theme.sh` performs before calling `activate`.
+    let available = scratch("row-ids");
+    for row in &tab.rows {
+        std::fs::create_dir_all(available.join(row.label.as_str())).expect("theme dir");
+    }
+    for row in &tab.rows {
+        assert!(
+            !row.id.as_str().contains(char::is_whitespace),
+            "id is a single token: {:?}",
+            row.id.as_str()
+        );
+        assert_eq!(
+            theme_::resolve_name_in(&available, row.id.as_str()).as_deref(),
+            Some(row.label.as_str()),
+            "row id resolves back to the theme name"
+        );
+    }
+    std::fs::remove_dir_all(&available).expect("cleanup");
+}
+
+/// Unique scratch dir per call (tests run in parallel; B-007/B-013).
+fn scratch(name: &str) -> std::path::PathBuf {
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let seq = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let dir = std::env::temp_dir().join(format!(
+        "flex-theme-test-{}-{name}-{seq}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+    dir
 }
 
 #[test]
@@ -136,10 +164,16 @@ fn keyseq_down_enter_selects_second_theme() {
     );
     assert_eq!(outcome, KeyOutcome::Select);
     let row = menu.app.focused_row().expect("focused row");
-    assert_eq!(row.id.as_str(), "tokyo-night");
     assert_eq!(row.label, "tokyo-night");
-    // The wrapper's ACTION: line for this selection:
-    // `ACTION: theme tokyo-night tokyo-night` (exit 0).
+    assert!(
+        !row.id.as_str().contains(char::is_whitespace),
+        "row id is a single hash token: {:?}",
+        row.id.as_str()
+    );
+    assert_ne!(row.id.as_str(), row.label, "the name is not the id (B-021)");
+    // The wrapper's ACTION: line for this selection is
+    // `ACTION: theme <row-hash> tokyo-night` (exit 0); `flex-theme.sh`
+    // resolves the hash with `flex theme --resolve` before activating.
     assert_eq!(menu.provider, "theme");
 }
 
@@ -159,7 +193,8 @@ fn keyseq_filter_then_enter_selects_active_theme() {
     );
     assert_eq!(outcome, KeyOutcome::Select);
     let row = menu.app.focused_row().expect("focused row");
-    assert_eq!(row.id.as_str(), "catppuccin-mocha");
+    assert_eq!(row.label, "catppuccin-mocha");
+    assert_ne!(row.id.as_str(), row.label, "the name is not the id (B-021)");
 }
 
 #[test]
@@ -273,17 +308,23 @@ fn wrapper_dispatches_activate_to_theme_switcher() {
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("stub dir");
     let flex = dir.join("flex");
+    // The stub answers both calls the wrapper makes: the `ACTION:` line and
+    // the `--resolve` lookup that turns the row hash back into the theme
+    // name. The name deliberately contains a space, which is exactly what
+    // hashing the id makes survivable (B-021).
     std::fs::write(
         &flex,
-        "#!/usr/bin/env bash\necho 'ACTION: theme tokyo-night tokyo-night'\n",
+        "#!/usr/bin/env bash\nif [[ \"${2:-}\" == \"--resolve\" ]]; then\nprintf '%s\\n' 'Tokyo Night'\nexit 0\nfi\nprintf '%s\\n' 'ACTION: theme 0123456789abcdef Tokyo Night'\n",
     )
     .expect("flex stub");
     let switcher = dir.join("theme-switcher.sh");
     let log = dir.join("calls.log");
+    // Bracket every argv element so a name split across two arguments
+    // cannot masquerade as one.
     std::fs::write(
         &switcher,
         format!(
-            "#!/usr/bin/env bash\necho \"$@\" >> \"{}\"\n",
+            "#!/usr/bin/env bash\n{{ for arg in \"$@\"; do printf '[%s]' \"$arg\"; done; printf '\\n'; }} >> \"{}\"\n",
             log.display()
         ),
     )
@@ -318,7 +359,11 @@ fn wrapper_dispatches_activate_to_theme_switcher() {
         String::from_utf8_lossy(&output.stderr)
     );
     let logged = std::fs::read_to_string(&log).expect("call log");
-    assert_eq!(logged.trim(), "activate tokyo-night");
+    assert_eq!(
+        logged.trim(),
+        "[activate][Tokyo Night]",
+        "the resolved name reaches `activate` as ONE argument"
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -350,5 +395,87 @@ fn wrapper_rejects_malformed_action_lines() {
         .output()
         .expect("run wrapper");
     assert!(!output.status.success(), "malformed ACTION: must fail");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+// --- Empty-scan placeholder (B-026) -------------------------------------------
+
+/// Same policy as `launch`: an empty theme directory shows a `noop`
+/// placeholder row instead of a blank menu.
+#[test]
+fn empty_scan_shows_the_noop_placeholder() {
+    let tab = theme_::tab_from_entries(&[]);
+    assert_eq!(tab.name, theme_::TAB_NAME);
+    assert_eq!(tab.rows.len(), 1, "placeholder instead of a blank menu");
+    assert_eq!(tab.rows[0].id.as_str(), flex_rice::providers::NOOP_ID);
+    assert_eq!(tab.rows[0].label, theme_::NO_THEMES_LABEL);
+
+    let mut menu = flex_rice::menu(theme_::PROVIDER, vec![tab]);
+    let outcome = run::replay_keys(&mut menu, &[press(KeyCode::Enter)], run::test_base());
+    assert_eq!(outcome, KeyOutcome::Select);
+    assert_eq!(
+        menu.app.focused_row().expect("focused row").id.as_str(),
+        flex_rice::providers::NOOP_ID
+    );
+}
+
+/// The placeholder's `noop` id must never reach `theme-switcher.sh`
+/// (B-026): the wrapper exits 0 before resolving.
+#[test]
+fn wrapper_treats_the_noop_placeholder_as_a_noop() {
+    let dir = scratch("wrapper-noop");
+    std::fs::create_dir_all(&dir).expect("stub dir");
+    let flex = dir.join("flex");
+    std::fs::write(
+        &flex,
+        "#!/usr/bin/env bash\nif [[ \"${2:-}\" == \"--resolve\" ]]; then\nprintf 'resolved\\n' >> \"$STUB_RESOLVE_LOG\"\nprintf '%s\\n' 'Tokyo Night'\nexit 0\nfi\nprintf '%s\\n' 'ACTION: theme noop (No themes found)'\n",
+    )
+    .expect("flex stub");
+    let switcher = dir.join("theme-switcher.sh");
+    let log = dir.join("calls.log");
+    std::fs::write(
+        &switcher,
+        format!(
+            "#!/usr/bin/env bash\nprintf 'called\\n' >> '{}'\n",
+            log.display()
+        ),
+    )
+    .expect("switcher stub");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        for path in [&flex, &switcher] {
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755)).expect("chmod");
+        }
+    }
+    let wrapper = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("wrappers")
+        .join("flex-theme.sh");
+    let resolve_log = dir.join("resolve.log");
+    let output = std::process::Command::new("bash")
+        .arg(&wrapper)
+        .env(
+            "PATH",
+            format!(
+                "{}:{}",
+                dir.display(),
+                std::env::var("PATH").unwrap_or_default()
+            ),
+        )
+        .env("THEME_SWITCHER", &switcher)
+        .env("STUB_RESOLVE_LOG", &resolve_log)
+        .env("POPUP_KITTY", "1")
+        .output()
+        .expect("run wrapper");
+    assert!(
+        output.status.success(),
+        "placeholder selection is not an error: {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        !resolve_log.exists(),
+        "noop short-circuits before resolving"
+    );
+    assert!(!log.exists(), "theme-switcher.sh is never called");
     let _ = std::fs::remove_dir_all(&dir);
 }

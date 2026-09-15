@@ -65,8 +65,9 @@ pub const TAB_BLUETOOTH: &str = "Bluetooth";
 pub const TAB_POWER: &str = "Power";
 /// Tab titles (bash `flex_add_tab` order).
 pub const TAB_SETTINGS: &str = "Settings";
-/// No-op row id (bash `noop) :` arm — the wrapper exits 0, no effect).
-pub const NOOP_ID: &str = "noop";
+/// No-op row id: the shared [`crate::providers::NOOP_ID`] (bash `noop) :`
+/// arm — the matching wrapper exits 0, no effect).
+pub use super::NOOP_ID;
 /// Offline placeholder label (Q7 dim offline; see `render::OFFLINE_STATE`).
 pub const OFFLINE_LABEL: &str = "— offline";
 /// Parenthetical shown when a Wi-Fi scan returns nothing (bash-exact;
@@ -98,10 +99,14 @@ pub const BT_DEVICES_FILE_ENV: &str = "CENTER_BT_DEVICES_FILE";
 /// output per device (else `bluetoothctl info {mac}` runs).
 pub const BT_INFO_DIR_ENV: &str = "CENTER_BT_INFO_DIR";
 
-/// Launcher row id: `launch:{desktop-id}` (kind prefix for dispatch).
+/// Launcher row id: `launch:{row-id}` (kind prefix for dispatch).
+///
+/// The row id is already the space-free [`launch::entry_id`] hash, so the
+/// `flex-center.sh` wrapper resolves it back to a desktop-id through
+/// `flex launch --resolve` before launching.
 #[must_use]
-pub fn launch_id(desktop_id: &str) -> String {
-    format!("launch:{desktop_id}")
+pub fn launch_id(row_id: &str) -> String {
+    format!("launch:{row_id}")
 }
 
 /// Bluetooth row id: `bt:{mac}` (MACs never contain spaces).
@@ -169,10 +174,10 @@ pub fn launchers_tab_from_entries(entries: &[launch::DesktopEntry]) -> Tab {
     let mut rows = launch::rows(entries);
     for (row, entry) in rows.iter_mut().zip(entries.iter()) {
         debug_assert_eq!(row.label, entry.name, "launch::rows maps 1:1");
-        row.id = RowId::new(launch_id(&entry.id));
+        row.id = RowId::new(launch_id(row.id.as_str()));
     }
     if rows.is_empty() {
-        rows.push(Row::new(RowId::new(NOOP_ID), "(No applications found)"));
+        rows.push(super::empty_row(launch::NO_APPS_LABEL));
     }
     let mut tab = Tab::with_rows(TAB_LAUNCHERS, rows);
     tab.bare_rows = false;

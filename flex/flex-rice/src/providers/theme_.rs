@@ -14,14 +14,17 @@
 //!   appends `  Active` to its meta — the bash renderer joins meta and
 //!   status as `"$meta  $status"`, and [`Row`] has no separate status
 //!   field, so the status is folded into the meta string here.
-//! - Row id = theme name; the wrapper passes it to `activate`.
+//! - Row id = [`entry_id`] hash of the theme name (space-free: a theme
+//!   directory may be named `My Theme`, which would split the `ACTION:`
+//!   id token — B-021); the wrapper resolves it back with
+//!   `flex theme --resolve` and passes the name to `activate`.
 //!
 //! JSON is parsed with a std-only string scan (no `serde` in v1).
 //! The library never activates themes; it only selects a row.
 
 use std::path::PathBuf;
 
-use flex_core::{Row, RowId, Tab};
+use flex_core::{content_hash_hex, Row, RowId, Tab};
 
 /// Provider name for the `ACTION:` line.
 pub const PROVIDER: &str = "theme";
@@ -33,7 +36,7 @@ pub const ACTIVE_SUFFIX: &str = "  Active";
 /// One theme row: directory name + wallpaper basename + active flag.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ThemeEntry {
-    /// Theme (directory) name; also the [`Row`] action id.
+    /// Theme (directory) name; the [`Row`] id is [`entry_id`] of it.
     pub name: String,
     /// Wallpaper basename (`(no metadata)` / `unknown` fallbacks).
     pub wallpaper: String,
@@ -105,14 +108,14 @@ pub fn load() -> Vec<Row> {
     rows(&scan_available(&available_dir(), &current_name()))
 }
 
-/// Map entries to [`Row`]s: id = theme name, label = theme name,
+/// Map entries to [`Row`]s: id = [`entry_id`], label = theme name,
 /// meta = wallpaper basename (`  Active` appended when active).
 #[must_use]
 pub fn rows(entries: &[ThemeEntry]) -> Vec<Row> {
     entries
         .iter()
         .map(|entry| {
-            let id = RowId::new(entry.name.clone());
+            let id = RowId::new(entry_id(&entry.name));
             let meta = if entry.active {
                 format!("{}{ACTIVE_SUFFIX}", entry.wallpaper)
             } else {
@@ -123,16 +126,67 @@ pub fn rows(entries: &[ThemeEntry]) -> Vec<Row> {
         .collect()
 }
 
+/// Row/action id for a theme name: its content hash.
+///
+/// A theme directory name may contain whitespace (`My Theme`), and the
+/// `ACTION:` protocol delimits the id with spaces, so the name cannot be
+/// the id itself (B-021). [`resolve_name`] maps the hash back.
+#[must_use]
+pub fn entry_id(name: &str) -> String {
+    content_hash_hex(name)
+}
+
+/// Resolve a row id back to its theme name, for `flex theme --resolve`
+/// (hidden wrapper lookup, like `flex clip --resolve`).
+///
+/// Searched over the same entry set [`rows`] is built from. Returns `None`
+/// for unknown ids and for ids containing `/`.
+#[must_use]
+pub fn resolve_name(hash: &str) -> Option<String> {
+    resolve_name_in(&available_dir(), hash)
+}
+
+/// [`resolve_name`] over an explicit directory (tests/fixtures).
+#[must_use]
+pub fn resolve_name_in(available: &std::path::Path, hash: &str) -> Option<String> {
+    if hash.is_empty() || hash.contains('/') {
+        return None;
+    }
+    scan_available(available, "")
+        .into_iter()
+        .find(|entry| entry_id(&entry.name) == hash)
+        .map(|entry| entry.name)
+}
+
+/// Placeholder label for an empty `available/` directory (no bash
+/// equivalent — the deleted `pick()` simply showed nothing).
+pub const NO_THEMES_LABEL: &str = "(No themes found)";
+
 /// Build the `Themes` tab: standard spec rows, non-deletable rows.
+///
+/// An empty theme directory yields the `noop` placeholder row rather than a
+/// blank menu (B-026): `Enter` on it is a no-op in `flex-theme.sh`.
 #[must_use]
 pub fn theme_tab() -> Tab {
-    Tab::with_rows(TAB_NAME, load())
+    Tab::with_rows(
+        TAB_NAME,
+        tab_rows(&scan_available(&available_dir(), &current_name())),
+    )
 }
 
 /// Build a `Themes` tab from pre-scanned entries (tests/replays).
 #[must_use]
 pub fn tab_from_entries(entries: &[ThemeEntry]) -> Tab {
-    Tab::with_rows(TAB_NAME, rows(entries))
+    Tab::with_rows(TAB_NAME, tab_rows(entries))
+}
+
+/// [`rows`] plus the empty-scan placeholder (B-026).
+fn tab_rows(entries: &[ThemeEntry]) -> Vec<Row> {
+    let mut rows = rows(entries);
+    if rows.is_empty() {
+        rows.push(super::empty_row(NO_THEMES_LABEL));
+    }
+    rows
 }
 
 /// Wallpaper basename for one theme dir (`(no metadata)` fallback).

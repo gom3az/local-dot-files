@@ -100,27 +100,60 @@ pub fn load_entries() -> Vec<ClipEntry> {
 /// cleaned line wins.
 #[must_use]
 pub fn load_entries_in(hist: &Path, pins: &Path) -> Vec<ClipEntry> {
-    let mut seen: HashSet<String> = HashSet::new();
     let mut out: Vec<ClipEntry> = Vec::new();
+    visit_unique(hist, pins, |full, hash, pinned| {
+        out.push(entry(full, &hash, pinned));
+    });
+    out
+}
+
+/// Visit every **unique** cleaned line of the store in menu order: pins
+/// first (file order), then history newest-first.
+///
+/// Uniqueness is checked on the content hash, not on the line: the store is
+/// an unbounded user history (3.6 MB / 3227 lines on the reference host)
+/// and holding a second owned copy of every line just to dedup it doubled
+/// the picker's resident set (B-024). The hash is 16 hex chars, so the id
+/// set is small next to the lines, and `build` takes each line by value so
+/// a caller that does not need the full text can drop it immediately.
+///
+/// Two distinct lines colliding on the 64-bit hash would already make
+/// `resolve` return the wrong entry, so this changes nothing that was not
+/// already broken.
+fn visit_unique(hist: &Path, pins: &Path, mut build: impl FnMut(String, String, bool)) {
+    let mut seen: HashSet<String> = HashSet::new();
     for line in read_cleaned(pins) {
-        if seen.insert(line.clone()) {
-            out.push(entry(line, true));
+        let hash = content_hash_hex(&line);
+        if seen.insert(hash.clone()) {
+            build(line, hash, true);
         }
     }
     let mut history = read_cleaned(hist);
     history.reverse();
     for line in history {
-        if seen.insert(line.clone()) {
-            out.push(entry(line, false));
+        let hash = content_hash_hex(&line);
+        if seen.insert(hash.clone()) {
+            build(line, hash, false);
         }
     }
-    out
 }
 
-/// Load rows from the real store (preview labels for the tab).
+/// Load rows from the real store (preview labels only).
+///
+/// The tab needs nothing but the rows, so the full lines are dropped as they
+/// are previewed instead of being collected first and thrown away (B-024).
 #[must_use]
 pub fn load() -> Vec<Row> {
-    rows(&load_entries())
+    load_rows_in(&hist_path(), &pins_path())
+}
+
+/// [`load`] over explicit paths (unit fixtures).
+fn load_rows_in(hist: &Path, pins: &Path) -> Vec<Row> {
+    let mut rows: Vec<Row> = Vec::new();
+    visit_unique(hist, pins, |full, hash, pinned| {
+        rows.push(clip_row(&full, &hash, pinned));
+    });
+    rows
 }
 
 /// Map entries to [`Row`]s (id/label/meta only; full text stays in entries).
@@ -135,13 +168,18 @@ pub fn rows(entries: &[ClipEntry]) -> Vec<Row> {
 /// `Toggle`); this constructor only opts the tab into that flow.
 #[must_use]
 pub fn clip_tab() -> Tab {
-    tab_from_entries(&load_entries())
+    tab_from_rows(load())
 }
 
 /// Build a `Clipboard` tab from pre-parsed entries (tests/replays).
 #[must_use]
 pub fn tab_from_entries(entries: &[ClipEntry]) -> Tab {
-    let mut tab = Tab::with_rows(TAB_NAME, rows(entries));
+    tab_from_rows(rows(entries))
+}
+
+/// Wrap rows in the deletable `Clipboard` tab shape.
+fn tab_from_rows(rows: Vec<Row>) -> Tab {
+    let mut tab = Tab::with_rows(TAB_NAME, rows);
     tab.deletable = true;
     tab
 }
@@ -157,10 +195,16 @@ pub fn resolve(hash: &str) -> Option<String> {
 /// [`resolve`] over explicit paths (tests/fixtures).
 #[must_use]
 pub fn resolve_in(hist: &Path, pins: &Path, hash: &str) -> Option<String> {
-    load_entries_in(hist, pins)
-        .into_iter()
-        .find(|entry| entry.row.id.as_str() == hash)
-        .map(|entry| entry.full)
+    // Walks the store with the same dedup and ordering rules, but builds
+    // neither previews nor measurements: the lookup only compares hashes
+    // (B-024 — `flex clip --resolve` runs on every selection).
+    let mut found: Option<String> = None;
+    visit_unique(hist, pins, |full, entry_hash, _pinned| {
+        if found.is_none() && entry_hash == hash {
+            found = Some(full);
+        }
+    });
+    found
 }
 
 /// Decode a stored line for copying (`<NEWLINE>` → real newlines).
@@ -211,20 +255,30 @@ fn clean_line(raw: &[u8]) -> Option<String> {
 }
 
 /// Build one [`ClipEntry`]: hash id, 120-char preview, pin meta, widths.
-fn entry(full: String, pinned: bool) -> ClipEntry {
-    let id = RowId::new(content_hash_hex(&full));
-    let preview: String = full.chars().take(PREVIEW_CHARS).collect();
-    let measured = width::measure(&preview);
-    let row = if pinned {
-        Row::with_meta(id, preview, PINNED_META)
-    } else {
-        Row::new(id, preview)
-    };
+///
+/// `hash` is the caller's already-computed [`content_hash_hex`] of `full`
+/// (the dedup in [`visit_unique`] needs it anyway — hashing twice was pure
+/// waste).
+fn entry(full: String, hash: &str, pinned: bool) -> ClipEntry {
+    let row = clip_row(&full, hash, pinned);
+    let measured = width::measure(&row.label);
     ClipEntry {
         full,
         row,
         measured,
         pinned,
+    }
+}
+
+/// Preview row for one cleaned line: id = content-hash hex, label = the
+/// first [`PREVIEW_CHARS`] characters, meta = `📌` when pinned.
+fn clip_row(full: &str, hash: &str, pinned: bool) -> Row {
+    let preview: String = full.chars().take(PREVIEW_CHARS).collect();
+    let id = RowId::new(hash.to_string());
+    if pinned {
+        Row::with_meta(id, preview, PINNED_META)
+    } else {
+        Row::new(id, preview)
     }
 }
 
@@ -261,10 +315,54 @@ mod tests {
     #[test]
     fn preview_truncates_at_120_chars_but_full_is_kept() {
         let full = "x".repeat(200);
-        let got = entry(full.clone(), false);
+        let hash = content_hash_hex(&full);
+        let got = entry(full.clone(), &hash, false);
         assert_eq!(got.row.label.chars().count(), PREVIEW_CHARS);
         assert_eq!(got.full, full);
-        assert_eq!(got.row.id.as_str(), content_hash_hex(&full).as_str());
+        assert_eq!(got.row.id.as_str(), hash.as_str());
+    }
+
+    #[test]
+    fn row_only_and_entry_paths_agree() {
+        // The tab builds rows straight from the store (`load_rows_in`,
+        // dropping each full line as it previews it) while
+        // `load_entries_in` keeps the full lines; both must yield the same
+        // menu, or the memory shortcut changed what the picker shows
+        // (B-024 refactor guard).
+        let dir = std::env::temp_dir().join(format!("flex-clip-unit-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).expect("fixture dir");
+        let hist = dir.join("hist");
+        let pins = dir.join("pins");
+        std::fs::write(&hist, "one\ntwo\none\nthree\n").expect("hist");
+        std::fs::write(&pins, "pinned\n").expect("pins");
+        let from_entries = rows(&load_entries_in(&hist, &pins));
+        let tab_rows = load_rows_in(&hist, &pins);
+        std::fs::remove_dir_all(&dir).expect("cleanup");
+        let shape: Vec<(&str, &str, Option<&str>)> = tab_rows
+            .iter()
+            .map(|row| (row.id.as_str(), row.label.as_str(), row.meta.as_deref()))
+            .collect();
+        assert_eq!(
+            shape,
+            vec![
+                (
+                    content_hash_hex("pinned").as_str(),
+                    "pinned",
+                    Some(PINNED_META)
+                ),
+                (content_hash_hex("three").as_str(), "three", None),
+                (content_hash_hex("one").as_str(), "one", None),
+                (content_hash_hex("two").as_str(), "two", None),
+            ],
+            "pins first, history newest-first, duplicates collapsed to the first"
+        );
+        assert_eq!(
+            from_entries
+                .iter()
+                .map(|row| (row.id.as_str(), row.label.as_str(), row.meta.as_deref()))
+                .collect::<Vec<_>>(),
+            shape
+        );
     }
 
     #[test]

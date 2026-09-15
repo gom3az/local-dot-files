@@ -700,3 +700,26 @@ fn parity_with_bash_pipeline_on_reference_data() {
         "all pins precede history"
     );
 }
+
+// --- Resolve error format (B-022) -----------------------------------------------
+
+/// An unknown `--resolve` id is one complete diagnostic line: `main` adds
+/// `flex: error:` exactly once, so the message must not carry a second
+/// `flex:` prefix of its own.
+#[test]
+fn unknown_resolve_id_is_reported_with_a_single_prefix() {
+    let home = scratch("resolve-error");
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_flex"))
+        .args(["clip", "--resolve", "deadbeef"])
+        .env("HOME", &home)
+        .env_remove("CLIPHIST_FILE")
+        .env_remove("CLIPHIST_PINS")
+        .output()
+        .expect("run flex clip --resolve");
+    let _ = std::fs::remove_dir_all(&home);
+    assert!(!output.status.success(), "unknown id exits non-zero");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "flex: error: clip: unknown id 'deadbeef'\n"
+    );
+}

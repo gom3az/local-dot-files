@@ -91,11 +91,24 @@ enum Command {
     /// Power menu (shutdown/reboot/…).
     Power,
     /// Application launcher.
-    Launch,
+    Launch {
+        /// Resolve a row-hash id to its desktop-id (`firefox.desktop`).
+        /// Hidden wrapper lookup: `flex-launch.sh` and `flex-center.sh`
+        /// resolve the id from the `ACTION:` line back to the `.desktop`
+        /// file AFTER the TUI exits (ids are space-free hashes, B-021).
+        #[arg(long, hide = true)]
+        resolve: Option<String>,
+    },
     /// Screenshot flow.
     Shot,
     /// Theme switcher.
-    Theme,
+    Theme {
+        /// Resolve a row-hash id to its theme (directory) name. Hidden
+        /// wrapper lookup: `flex-theme.sh` resolves the id from the
+        /// `ACTION:` line before handing the name to `theme-switcher.sh`.
+        #[arg(long, hide = true)]
+        resolve: Option<String>,
+    },
     /// Clipboard history.
     Clip {
         /// Resolve a content-hash id to its stored (`<NEWLINE>`-encoded)
@@ -119,6 +132,10 @@ enum Command {
 }
 
 fn main() {
+    // `flex: error:` is added once, here, and nowhere else: errors bubbling
+    // up from `run` must carry no `flex:` prefix of their own (B-022).
+    // Diagnostics printed directly by a provider use the full
+    // `flex: <provider>: …` form instead.
     if let Err(err) = run() {
         eprintln!("flex: error: {err:#}");
         std::process::exit(EXIT_ERROR);
@@ -147,6 +164,12 @@ fn run() -> Result<()> {
         theme: cli.theme,
         peaks: cli.peaks,
     };
+    // Hidden wrapper lookups (`flex <provider> --resolve <id>`) print the
+    // provider identity behind a row id and exit; every other invocation
+    // opens the TUI.
+    if resolve_lookup(&cli.command)?.is_some() {
+        return Ok(());
+    }
     match cli.command {
         Command::Power => {
             let tab = providers::power::power_tab();
@@ -154,11 +177,8 @@ fn run() -> Result<()> {
             flex_core::run::run(menu)?;
             Ok(())
         }
-        Command::Launch => {
+        Command::Launch { resolve: _ } => {
             let tab = providers::launch::launch_tab();
-            if tab.rows.is_empty() {
-                eprintln!("flex: launch: no applications found");
-            }
             let menu = style.apply(menu(providers::launch::PROVIDER, vec![tab]));
             flex_core::run::run(menu)?;
             Ok(())
@@ -169,58 +189,39 @@ fn run() -> Result<()> {
             flex_core::run::run(menu)?;
             Ok(())
         }
-        Command::Theme => {
+        Command::Theme { resolve: _ } => {
             let tab = providers::theme_::theme_tab();
-            if tab.rows.is_empty() {
-                eprintln!("flex: theme: no available themes found");
-            }
             let menu = style.apply(menu(providers::theme_::PROVIDER, vec![tab]));
             flex_core::run::run(menu)?;
             Ok(())
         }
-        Command::Clip { resolve } => {
-            if let Some(hash) = resolve {
-                let Some(line) = providers::clip::resolve(&hash) else {
-                    anyhow::bail!("flex: clip: unknown id '{hash}'");
-                };
-                println!("{line}");
-                Ok(())
-            } else {
-                let tab = providers::clip::clip_tab();
-                if tab.rows.is_empty() {
-                    eprintln!("flex: clip: no history yet");
-                    std::process::exit(EXIT_CANCELLED);
-                }
-                let menu = style.apply(menu(providers::clip::PROVIDER, vec![tab]));
-                flex_core::run::run(menu)?;
-                Ok(())
+        Command::Clip { resolve: _ } => {
+            let tab = providers::clip::clip_tab();
+            if tab.rows.is_empty() {
+                eprintln!("flex: clip: no history yet");
+                std::process::exit(EXIT_CANCELLED);
             }
+            let menu = style.apply(menu(providers::clip::PROVIDER, vec![tab]));
+            flex_core::run::run(menu)?;
+            Ok(())
         }
         Command::Center => {
             let menu = style.apply(providers::center::center_menu());
             flex_core::run::run(menu)?;
             Ok(())
         }
-        Command::Wallpaper { resolve } => {
-            if let Some(id) = resolve {
-                let Some(path) = providers::wallpaper::resolve(&id) else {
-                    anyhow::bail!("flex: wallpaper: unknown id '{id}'");
-                };
-                println!("{}", path.display());
-                Ok(())
-            } else {
-                let tab = providers::wallpaper::wallpaper_tab();
-                if tab.rows.is_empty() {
-                    eprintln!("flex: wallpaper: no wallpapers found");
-                    std::process::exit(EXIT_CANCELLED);
-                }
-                let mut menu = style.apply(menu(providers::wallpaper::PROVIDER, vec![tab]));
-                // Image previews need a kitty-compatible terminal; everywhere
-                // else the picker is a plain list (no pane reserved).
-                menu.preview = flex_core::preview::enabled();
-                flex_core::run::run(menu)?;
-                Ok(())
+        Command::Wallpaper { resolve: _ } => {
+            let tab = providers::wallpaper::wallpaper_tab();
+            if tab.rows.is_empty() {
+                eprintln!("flex: wallpaper: no wallpapers found");
+                std::process::exit(EXIT_CANCELLED);
             }
+            let mut menu = style.apply(menu(providers::wallpaper::PROVIDER, vec![tab]));
+            // Image previews need a kitty-compatible terminal; everywhere
+            // else the picker is a plain list (no pane reserved).
+            menu.preview = flex_core::preview::enabled();
+            flex_core::run::run(menu)?;
+            Ok(())
         }
         Command::Wifi => {
             let menu = style.apply(providers::wifi::menu());
@@ -228,6 +229,38 @@ fn run() -> Result<()> {
             Ok(())
         }
     }
+}
+
+/// Hidden wrapper lookups: `flex <provider> --resolve <id>` prints the
+/// provider identity the id stands for (desktop-id, theme name, wallpaper
+/// path, clipboard line) and returns `Ok(Some(()))`.
+///
+/// `Ok(None)` means the command is a normal TUI invocation. The message for
+/// an unknown id is built here, in one place, and carries no `flex:`
+/// prefix of its own — `main` adds that exactly once (B-022).
+fn resolve_lookup(command: &Command) -> Result<Option<()>> {
+    let (provider, id, resolved) = match command {
+        Command::Clip {
+            resolve: Some(hash),
+        } => ("clip", hash, providers::clip::resolve(hash)),
+        Command::Wallpaper { resolve: Some(id) } => (
+            "wallpaper",
+            id,
+            providers::wallpaper::resolve(id).map(|path| path.display().to_string()),
+        ),
+        Command::Launch {
+            resolve: Some(hash),
+        } => ("launch", hash, providers::launch::resolve_id(hash)),
+        Command::Theme {
+            resolve: Some(hash),
+        } => ("theme", hash, providers::theme_::resolve_name(hash)),
+        _ => return Ok(None),
+    };
+    let Some(value) = resolved else {
+        anyhow::bail!("{provider}: unknown id '{id}'");
+    };
+    println!("{value}");
+    Ok(Some(()))
 }
 
 /// Presentation flags shared by every provider (upstream `-s/-t/-p/--filter-mode`).

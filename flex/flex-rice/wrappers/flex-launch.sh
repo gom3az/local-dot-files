@@ -27,11 +27,21 @@ rest="${line#* launch }"
 id="${rest%% *}"
 [[ "$id" != */* && "$id" != *$'\n'* && -n "$id" ]] || { echo "flex-launch: bad id: $id" >&2; exit 1; }
 
+# Empty-scan placeholder (`ACTION: launch noop (No applications found)`):
+# there is nothing to launch, and the shared `noop` arm exits 0 (B-026).
+[[ "$id" != "noop" ]] || exit 0
+
+# The id is a space-free row hash, not the file name: a `.desktop` entry may
+# be called `My App.desktop` and could not survive the whitespace-delimited
+# ACTION: token. Resolve it back to the desktop-id first (B-021).
+desk_id="$(flex launch --resolve "$id")" || { echo "flex-launch: unknown id: $id" >&2; exit 1; }
+[[ "$desk_id" != */* && "$desk_id" != *$'\n'* && -n "$desk_id" ]] || { echo "flex-launch: bad desktop id: $desk_id" >&2; exit 1; }
+
 desk=""
 for dir in "$HOME/.local/share/applications" "/usr/share/applications"; do
-    if [[ -f "$dir/$id" ]]; then desk="$dir/$id"; break; fi
+    if [[ -f "$dir/$desk_id" ]]; then desk="$dir/$desk_id"; break; fi
 done
-[[ -n "$desk" ]] || { echo "flex-launch: $id not found" >&2; exit 1; }
+[[ -n "$desk" ]] || { echo "flex-launch: $desk_id not found" >&2; exit 1; }
 
 exec=""; term="false"
 while IFS='=' read -r key value; do
@@ -41,7 +51,7 @@ while IFS='=' read -r key value; do
     esac
 done < <(grep -E '^(Exec|Terminal)=' "$desk")
 exec="$(printf '%s' "$exec" | sed -E 's/ %[A-Za-z]//g; s/^ *//; s/ *$//')"
-[[ -n "$exec" ]] || { echo "flex-launch: empty Exec in $id" >&2; exit 1; }
+[[ -n "$exec" ]] || { echo "flex-launch: empty Exec in $desk_id" >&2; exit 1; }
 
 if [[ "$term" == "true" ]]; then
     # shellcheck disable=SC2086

@@ -162,15 +162,37 @@ fn tab_order_and_names_match_bash_add_tab_order() {
 
 #[test]
 fn launchers_reuse_desktop_scan_with_kind_prefixed_ids() {
-    let tab = center::launchers_tab_from_entries(&launch::scan_dirs(&[launch_fixtures_dir()]));
+    let dirs = [launch_fixtures_dir()];
+    let tab = center::launchers_tab_from_entries(&launch::scan_dirs(&dirs));
     assert_eq!(tab.rows.len(), 4, "same survivor set as flex launch");
     let first = &tab.rows[0];
-    assert_eq!(first.id.as_str(), "launch:firefox.desktop");
     assert_eq!(first.label, "Firefox");
     assert_eq!(first.meta, None);
     let htop = &tab.rows[1];
-    assert_eq!(htop.id.as_str(), "launch:terminal-app.desktop");
     assert_eq!(htop.meta.as_deref(), Some(launch::TERMINAL_META));
+    // `launch:` + the space-free row hash from `launch::rows` (B-021); the
+    // wrapper resolves the hash back to a desktop-id before launching.
+    for (row, desktop_id) in tab.rows.iter().zip([
+        "firefox.desktop",
+        "terminal-app.desktop",
+        "onlyshow-app.desktop",
+        "percent-app.desktop",
+    ]) {
+        let hash = row
+            .id
+            .as_str()
+            .strip_prefix("launch:")
+            .expect("kind prefix");
+        assert!(
+            !hash.contains(char::is_whitespace),
+            "hash part is one token: {hash:?}"
+        );
+        assert_eq!(
+            launch::resolve_id_in(&dirs, hash).as_deref(),
+            Some(desktop_id),
+            "the kind-prefixed id resolves back to its desktop-id"
+        );
+    }
 }
 
 #[test]
@@ -835,6 +857,22 @@ fn flex_stub(dir: &Path, action_line: &str) {
     );
 }
 
+/// Like [`flex_stub`], but also answers the `--resolve` lookup the wrapper
+/// performs for launcher rows: the row hash is resolved to `desktop_id`.
+///
+/// The call is logged so a test can prove the wrapper resolved the hash
+/// instead of treating it as a file name (B-021).
+fn flex_resolving_stub(dir: &Path, action_line: &str, desktop_id: &str) {
+    let log = dir.join("resolve.log");
+    write_exe(
+        &dir.join("flex"),
+        &format!(
+            "#!/usr/bin/env bash\nif [[ \"${{2:-}}\" == \"--resolve\" ]]; then\nprintf 'resolve %s\\n' \"${{3:-}}\" >> '{}'\nprintf '%s\\n' '{desktop_id}'\nexit 0\nfi\necho '{action_line}'\n",
+            log.display()
+        ),
+    );
+}
+
 fn log_stub(dir: &Path, name: &str, body: &str) -> PathBuf {
     let path = dir.join(name);
     write_exe(&path, body);
@@ -908,8 +946,10 @@ fn wrapper_launches_gui_and_terminal_apps() {
         "[Desktop Entry]\nName=Firefox\nExec=firefox %U\nTerminal=false\n",
     )
     .expect("desktop entry");
+    // Space-bearing file name: legal, and exactly what hashing the row id
+    // makes survivable (B-021).
     std::fs::write(
-        apps.join("htop.desktop"),
+        apps.join("Htop Terminal.desktop"),
         "[Desktop Entry]\nName=Htop\nExec=htop\nTerminal=true\n",
     )
     .expect("desktop entry");
@@ -918,7 +958,11 @@ fn wrapper_launches_gui_and_terminal_apps() {
     }
     let log = dir.join("calls.log");
     // GUI app: setsid without kitty.
-    flex_stub(&dir, "ACTION: center launch:firefox.desktop Firefox");
+    flex_resolving_stub(
+        &dir,
+        "ACTION: center launch:0123456789abcdef Firefox",
+        "firefox.desktop",
+    );
     let output = run_wrapper(&dir, &[("HOME", home.clone()), ("STUB_LOG", log.clone())]);
     assert!(
         output.status.success(),
@@ -931,15 +975,25 @@ fn wrapper_launches_gui_and_terminal_apps() {
         "strips %U: {logged:?}"
     );
     assert!(!logged.contains("kitty"), "GUI app skips kitty: {logged:?}");
-    // Terminal app: setsid via kitty -e.
+    // Terminal app: setsid via kitty -e, desktop-id resolved from the hash.
     std::fs::remove_file(&log).expect("reset log");
-    flex_stub(&dir, "ACTION: center launch:htop.desktop Htop");
+    flex_resolving_stub(
+        &dir,
+        "ACTION: center launch:fedcba9876543210 Htop",
+        "Htop Terminal.desktop",
+    );
     let output = run_wrapper(&dir, &[("HOME", home), ("STUB_LOG", log)]);
     assert!(output.status.success());
     let logged = read_log(&dir);
     assert!(
         logged.contains("setsid -f kitty -e htop"),
         "kitty path: {logged:?}"
+    );
+    let resolved = std::fs::read_to_string(dir.join("resolve.log")).expect("resolve log");
+    assert_eq!(
+        resolved.lines().collect::<Vec<_>>(),
+        ["resolve 0123456789abcdef", "resolve fedcba9876543210"],
+        "each ACTION id is resolved, never used as a file name"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }

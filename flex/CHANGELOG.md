@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Review pass over the findings in `Docs/Bug_tracking.md`. `flex launch` and
+`flex center` no longer print a false `skipping malformed entry` line for
+every `.desktop` file that is skipped *by design* — 202 of them on the
+reference host, on every open; the parser now returns a three-state result
+(`Entry`/`Hidden`/`Malformed`) and only genuinely broken files are reported
+(B-020). Launcher and theme row ids became **space-free content hashes** with
+hidden `flex launch --resolve` / `flex theme --resolve` lookups, so an app or
+theme named `My App`/`My Theme` no longer produces an `ACTION:` line whose id
+token the wrappers mis-split (B-021; `flex-launch.sh`, `flex-theme.sh` and
+`flex-center.sh` resolve before acting). The `--resolve` unknown-id message
+carries `flex: error:` exactly once (B-022), and the `.desktop` sort now uses
+`sort_by_cached_key`, cutting the allocating key function from 1054 calls to
+84 on the reference tree (B-023). The clipboard picker no longer holds the
+history twice — dedup works on the content hash and the tab previews each
+line as it drops it — which took `flex clip`'s peak RSS from ~17.6 MB to
+~11.1 MB on the reference 3.6 MB / 3227-line store, with the live bash parity
+probe unchanged (B-024). An empty provider is no longer a blank screen:
+`flex launch` and `flex theme` show the same `noop` placeholder row the
+control center already used (`(No applications found)` / `(No themes
+found)`), and the `flex-launch`/`flex-theme` wrappers treat `noop` as a
+no-op like every other wrapper (B-026).
+
 Network-dialog cutover: Waybar's network click now opens `flex wifi` instead of
 a script that could only print "nmtui is not installed". The picker keeps the
 rofi dialog's affordances (radio on/off, disconnect, signal/security per

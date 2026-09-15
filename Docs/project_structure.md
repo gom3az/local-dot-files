@@ -87,6 +87,12 @@ and took out all seven keybinds.
    (`ACTION: <provider> <action_id> <escaped-label>`). All diagnostics go to
    stderr via `eprintln!`/`anyhow`. Exit codes: `0` = action, `130` = cancel,
    `1` = error (the contract lives in `flex-core/src/backend.rs`).
+   **Empty providers have one policy (B-026):** a chooser that found nothing
+   shows a single `noop` placeholder row (`providers::empty_row`, shared id
+   `providers::NOOP_ID`) and keeps the TUI, so the menu is never blank and
+   `Enter` on it is a no-op in every wrapper; a provider that cannot offer any
+   action at all (`clip` without history, `wallpaper` without images)
+   diagnoses on stderr and exits `130` before initialising the terminal.
 3. **Providers parse subprocess stdout once.** At most one child spawn per
    invocation; read stdout to `Vec<Row>` up front; filter/render in-process after
    that. No re-spawning per keystroke. Two documented exceptions, both driven by
@@ -107,6 +113,14 @@ and took out all seven keybinds.
    `action_id = hex(blake/simple-hash(content))` — stable across runs so wrappers
    can round-trip history entries. `wallpaper` reuses it over the absolute
    path and adds a hidden `--resolve` lookup, since paths contain spaces.
+   `launch` and `theme` follow the same rule over the desktop-id / theme
+   name (`launch::entry_id`, `theme_::entry_id`) with `flex launch --resolve`
+   and `flex theme --resolve`: a `.desktop` file or theme directory may be
+   named `My App.desktop`/`My Theme`, and the `ACTION:` id token is
+   whitespace-delimited, so the raw name can never be the id (B-021). A
+   provider that puts a free-text value in the id must therefore hash it and
+   ship a resolver — `wifi` is the one exception, and it keeps the SSID in
+   the escaped *label* instead.
    (Hash fn: std-only in v1, no extra deps.)
 5. **`target/` gitignored.** `.gitignore` carries `flex/target/`; never commit
    build artifacts. `Cargo.lock` IS committed (Q5) — it is also what pins the
@@ -164,7 +178,7 @@ flex-core = { path = "../../projects/flex-core" }
 
 - `cargo fmt --all --check`
 - `cargo clippy --all-targets -- -D warnings`
-- `cargo test` — the rice half (222 tests). The engine's 109 tests run in its own
+- `cargo test` — the rice half (234 tests). The engine's 109 tests run in its own
   repo; together they are the 331 the pre-split workspace ran.
 - `cargo build --release` → `target/release/flex` (what the wrappers exec)
 - `cargo tree -i crossterm` (single-major check)

@@ -15,7 +15,24 @@ pub mod shot;
 pub mod wallpaper;
 pub mod wifi;
 
-use flex_core::{Menu, Tab, TickHook};
+use flex_core::{Menu, Row, RowId, Tab, TickHook};
+
+/// No-op row id (bash `noop) :` arm — the wrapper exits 0, no effect).
+///
+/// Defined once here and re-exported by [`center`] (which used to own the
+/// constant), because every provider's empty state ends up as a `noop` row
+/// (B-026).
+pub const NOOP_ID: &str = "noop";
+
+/// Placeholder row for a provider whose scan found nothing.
+///
+/// Selecting it emits `ACTION: <provider> noop <label>`, which every wrapper
+/// treats as a no-op: the menu is never blank, and `Enter` on the placeholder
+/// cannot act on a row that does not exist (B-026).
+#[must_use]
+pub fn empty_row(label: &str) -> Row {
+    Row::new(RowId::new(NOOP_ID), label)
+}
 
 /// Per-tick refresh for the two providers whose rows go stale while the menu
 /// is open: `center` re-reads volume/brightness into its gauge in place, and

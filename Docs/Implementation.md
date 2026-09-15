@@ -148,7 +148,10 @@ Risk register drove this order — highest-unknown work is pulled earliest:
 - [x] `launch` (M2 cutover DONE 2026-09-15): `.desktop` scan
       (`src/providers/launch.rs`) with `app-cache.sh` row-set parity
       (90/90 names, zero drift vs `~/.cache/app-launcher.list`), `Terminal`
-      meta, `%X`-preserving `Exec`; event loop (`src/run.rs`: poll 1 s,
+      meta, `%X`-preserving `Exec`; row id = space-free hash of the
+      desktop-id (`launch::entry_id`) with the hidden `flex launch --resolve`
+      lookup the wrappers call before launching (B-021 — a `.desktop` file
+      may be named `My App.desktop`); event loop (`src/run.rs`: poll 1 s,
       `handle_key`, render-per-frame, `tick`, `ACTION:`/`ACTION:DELETE`/quit
       exits, `FLEX_TEST` seeded step); hidden `--filter-mode=spec|legacy`
       escape hatch;       `wrappers/flex-launch.sh` (41 lines, `setsid`/`%X`-strip/
@@ -212,7 +215,9 @@ Risk register drove this order — highest-unknown work is pulled earliest:
       + `🖥` preserved) and `PNG`/`MP4` metas; ids are the bash `case` arms
       (`area-shot` … `full-rec-audio`); standard spec rows, non-deletable.
       `theme` (`src/providers/theme_.rs`, std-only JSON scan, no serde):
-      sorted `available/` dirs, label/id = theme name, meta = wallpaper
+      sorted `available/` dirs, label = theme name, id = space-free hash of
+      it (`theme_::entry_id`; see B-021 — a directory may be named
+      `My Theme`), meta = wallpaper
       basename (`(no metadata)`/`unknown` fallbacks) + `  Active` suffix for
       the current theme (bash meta+status join); non-deletable. `main.rs`
       dispatches both through `run::run` with `--filter-mode` support.

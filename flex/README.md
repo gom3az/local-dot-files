@@ -22,7 +22,7 @@ finished `wifi` scan — build menus in this repo with `flex_rice::menu(…)`,
 which installs it.
 
 ```sh
-cargo test                       # the rice half (222 tests; the engine's 109 run in its repo)
+cargo test                       # the rice half (234 tests; the engine's 109 run in its repo)
 cargo build --release            # → target/release/flex (what the wrappers exec)
 cargo clippy --all-targets -- -D warnings
 ```
@@ -44,10 +44,27 @@ ACTION: <provider> <action_id> <escaped-label>
 - `<action_id>`: opaque, provider-defined id. For `clip` it is the
   content-hash hex (`RowId`, Q2) so wrappers can round-trip history entries;
   `wallpaper` uses the same idea over the absolute path and exposes the
-  hidden `flex wallpaper --resolve <id>` lookup. `wifi` ids are the fixed
-  actions (`off`/`on`/`disconnect`/`wifi`/`noop`) and take their SSID from
+  hidden `flex wallpaper --resolve <id>` lookup. `launch` and `theme` hash
+  their ids the same way (`launch::entry_id` / `theme_::entry_id`) and expose
+  `flex launch --resolve <id>` / `flex theme --resolve <id>`, because a
+  `.desktop` file or a theme directory may be named with spaces
+  (`My App.desktop`, `My Theme`) and cannot survive a whitespace-delimited
+  token. `wifi` ids are the fixed actions
+  (`off`/`on`/`disconnect`/`wifi`/`noop`) and take their SSID from
   the escaped label, because SSIDs contain spaces.
 - `<escaped-label>`: human label with `\n`/`\` escaped; wrappers must unescape.
+- Empty providers: a chooser whose scan found nothing shows a single `noop`
+  placeholder row (`(No applications found)`, `(No themes found)`,
+  `(No Wi-Fi networks)`, …) instead of a blank menu, so the id token `noop`
+  means "the user picked the empty-state row" — every wrapper exits `0`
+  without acting. Providers that cannot offer any action at all (`clip` with
+  no history, `wallpaper` with no images) instead diagnose on stderr and exit
+  `130` before initialising the terminal (B-026).
+- Hidden id lookups: `flex clip --resolve <id>`, `flex wallpaper --resolve
+  <id>`, `flex launch --resolve <id>` and `flex theme --resolve <id>` print the
+  provider identity behind a row id (content, path, desktop-id, theme name)
+  and exit; they are how the wrappers turn a space-free id back into the thing
+  they must act on.
 
 Exit codes: `0` = action chosen, `130` = user cancelled (`Esc`/`q`), `1` = error.
 All diagnostics go to **stderr**; stdout carries only the `ACTION:` line.

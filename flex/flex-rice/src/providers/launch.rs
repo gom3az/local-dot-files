@@ -10,7 +10,9 @@
 //!   `OnlyShowIn`/`NotShowIn`/`Icon` are parsed and ignored (shown
 //!   everywhere, exactly like the bash version which never reads them).
 //! - Skipped (never panic): unreadable files, missing `Name`/`Exec`,
-//!   `NoDisplay`/`Hidden` set. Unreadable or field-less files log to stderr.
+//!   `NoDisplay`/`Hidden` set. Only the unreadable/field-less class is
+//!   malformed and logs to stderr; `NoDisplay`/`Hidden` entries are skipped
+//!   by design and stay silent (202 of them on the reference host).
 //! - Order: byte-lexicographic sort of the `name\texec\tterm` line, where
 //!   `exec` is the field-code-stripped form — the same bytes `sort` sees in
 //!   the bash cache (locale `sort` may differ for non-ASCII names; ASCII
@@ -18,12 +20,15 @@
 //!
 //! `Exec` is stored **raw** (`%U`/`%F`/… preserved): the `flex-launch.sh`
 //! wrapper strips field codes exactly like `launch_app_row` does. Row ids
-//! are desktop-ids (`firefox.desktop`); the wrapper re-resolves the id to
-//! the `.desktop` file to recover `Exec` + `Terminal`.
+//! are [`entry_id`] hashes of the desktop-id — space-free, because the
+//! `ACTION:` protocol delimits the id on whitespace and a `.desktop` file
+//! may legally be named `My App.desktop` (B-021). `flex launch --resolve
+//! <id>` maps such an id back to the desktop-id; the wrapper then
+//! re-resolves it to the `.desktop` file to recover `Exec` + `Terminal`.
 
 use std::path::{Path, PathBuf};
 
-use flex_core::{Row, RowId, Tab};
+use flex_core::{content_hash_hex, Row, RowId, Tab};
 
 /// Provider name for the `ACTION:` line.
 pub const PROVIDER: &str = "launch";
@@ -35,7 +40,7 @@ pub const TERMINAL_META: &str = "Terminal";
 /// One parsed `.desktop` entry (raw `Exec`, `%` codes preserved).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DesktopEntry {
-    /// Desktop-id (`firefox.desktop`); also the [`Row`] action id.
+    /// Desktop-id (`firefox.desktop`); the [`Row`] id is [`entry_id`] of it.
     pub id: String,
     /// Display name (`Name`).
     pub name: String,
@@ -64,6 +69,19 @@ pub fn app_dirs() -> Vec<PathBuf> {
 /// (files log to stderr); the result may be empty.
 #[must_use]
 pub fn scan_dirs(dirs: &[PathBuf]) -> Vec<DesktopEntry> {
+    scan(dirs, &|path| {
+        eprintln!("flex: launch: skipping malformed entry {}", path.display());
+    })
+}
+
+/// [`scan_dirs`] without diagnostics, for the id lookup: the entry set must
+/// be identical, but a wrapper-driven lookup has nothing to report.
+fn scan_silently(dirs: &[PathBuf]) -> Vec<DesktopEntry> {
+    scan(dirs, &|_| {})
+}
+
+/// Shared scan: the entry set and its ordering live here once.
+fn scan(dirs: &[PathBuf], report_malformed: &dyn Fn(&Path)) -> Vec<DesktopEntry> {
     use std::collections::BTreeMap;
     let mut seen: BTreeMap<String, DesktopEntry> = BTreeMap::new();
     for dir in dirs {
@@ -76,7 +94,11 @@ pub fn scan_dirs(dirs: &[PathBuf]) -> Vec<DesktopEntry> {
                 continue;
             };
             match read_entry(&path) {
-                Some((name, exec, terminal)) => {
+                Parsed::Entry {
+                    name,
+                    exec,
+                    terminal,
+                } => {
                     seen.insert(
                         id.clone(),
                         DesktopEntry {
@@ -87,14 +109,19 @@ pub fn scan_dirs(dirs: &[PathBuf]) -> Vec<DesktopEntry> {
                         },
                     );
                 }
-                None => {
-                    eprintln!("flex: launch: skipping malformed entry {}", path.display());
-                }
+                // Skipped by design (`NoDisplay`/`Hidden`): not a problem to
+                // report, or `flex launch` floods stderr on every open.
+                Parsed::Hidden => {}
+                Parsed::Malformed => report_malformed(&path),
             }
         }
     }
     let mut entries: Vec<DesktopEntry> = seen.into_values().collect();
-    entries.sort_by_key(sort_line);
+    // `sort_by_cached_key`, not `sort_by_key`: the key allocates three
+    // times (`sort_line` builds a `String`, `strip_field_codes` a
+    // `Vec<char>` and another `String`) and `sort_by_key` re-runs it for
+    // every comparison (B-023).
+    entries.sort_by_cached_key(sort_line);
     entries
 }
 
@@ -104,14 +131,14 @@ pub fn load() -> Vec<Row> {
     rows(&scan_dirs(&app_dirs()))
 }
 
-/// Map entries to [`Row`]s: id = desktop-id, label = `Name`,
+/// Map entries to [`Row`]s: id = [`entry_id`], label = `Name`,
 /// meta = `Terminal` on terminal apps (data parity with the bash meta).
 #[must_use]
 pub fn rows(entries: &[DesktopEntry]) -> Vec<Row> {
     entries
         .iter()
         .map(|entry| {
-            let id = RowId::new(entry.id.clone());
+            let id = RowId::new(entry_id(&entry.id));
             if entry.terminal {
                 Row::with_meta(id, entry.name.clone(), TERMINAL_META)
             } else {
@@ -121,16 +148,69 @@ pub fn rows(entries: &[DesktopEntry]) -> Vec<Row> {
         .collect()
 }
 
+/// Row/action id for a desktop-id: its content hash.
+///
+/// A desktop-id is a file name, so it may contain whitespace
+/// (`My App.desktop`), and the `ACTION:` protocol delimits the id with
+/// spaces — the wrapper would read `My`. Hashing keeps the id a single
+/// token, exactly like `clip`/`wallpaper`; [`resolve_id`] maps it back.
+#[must_use]
+pub fn entry_id(desktop_id: &str) -> String {
+    content_hash_hex(desktop_id)
+}
+
+/// Resolve a row id back to its desktop-id, for `flex launch --resolve`
+/// (hidden wrapper lookup, like `flex clip --resolve`).
+///
+/// Searched over the same entry set [`rows`] is built from, so only ids
+/// that can actually be on screen resolve. Returns `None` for unknown ids
+/// and for ids containing `/` (path traversal is never resolved).
+#[must_use]
+pub fn resolve_id(hash: &str) -> Option<String> {
+    resolve_id_in(&app_dirs(), hash)
+}
+
+/// [`resolve_id`] over explicit directories (tests/fixtures).
+#[must_use]
+pub fn resolve_id_in(dirs: &[PathBuf], hash: &str) -> Option<String> {
+    if hash.is_empty() || hash.contains('/') {
+        return None;
+    }
+    scan_silently(dirs)
+        .into_iter()
+        .find(|entry| entry_id(&entry.id) == hash)
+        .map(|entry| entry.id)
+}
+
+/// Placeholder row id for an empty scan is the shared `noop` (see
+/// [`super::empty_row`]); this is its bash-exact label, shared with the
+/// `center` Launchers tab so the two can never disagree.
+pub const NO_APPS_LABEL: &str = "(No applications found)";
+
 /// Build the `Launchers` tab: bare-rows mode, non-deletable rows.
+///
+/// An empty scan yields the `noop` placeholder row rather than a blank menu
+/// (B-026): `Enter` on it is a no-op in `flex-launch.sh`.
 #[must_use]
 pub fn launch_tab() -> Tab {
-    Tab::with_rows(TAB_NAME, load())
+    Tab::with_rows(TAB_NAME, tab_rows(&scan_dirs(&app_dirs())))
 }
 
 /// Build a `Launchers` tab from pre-scanned entries (tests/replays).
 #[must_use]
 pub fn tab_from_entries(entries: &[DesktopEntry]) -> Tab {
-    Tab::with_rows(TAB_NAME, rows(entries))
+    Tab::with_rows(TAB_NAME, tab_rows(entries))
+}
+
+/// [`rows`] plus the empty-scan placeholder (B-026): the standalone
+/// `flex launch` and the `center` Launchers tab must show the same thing for
+/// the same scan result.
+fn tab_rows(entries: &[DesktopEntry]) -> Vec<Row> {
+    let mut rows = rows(entries);
+    if rows.is_empty() {
+        rows.push(super::empty_row(NO_APPS_LABEL));
+    }
+    rows
 }
 
 /// Resolve a desktop-id to its raw `(Exec, terminal)` pair.
@@ -153,7 +233,7 @@ pub fn find_exec_in(dirs: &[PathBuf], id: &str) -> Option<(String, bool)> {
     // so search in reverse (user first).
     for dir in dirs.iter().rev() {
         let path = dir.join(id);
-        if let Some((_, exec, terminal)) = read_entry(&path) {
+        if let Parsed::Entry { exec, terminal, .. } = read_entry(&path) {
             return Some((exec, terminal));
         }
     }
@@ -196,15 +276,41 @@ fn desktop_files(dir: &Path) -> Vec<PathBuf> {
     files
 }
 
-/// Parse one `.desktop` file into `(Name, Exec, terminal)`.
+/// Outcome of parsing one `.desktop` file.
+///
+/// The three states are distinct on purpose: "hidden by design" and
+/// "broken" are different facts, and only the second one deserves a
+/// diagnostic ([B-020]).
+///
+/// [B-020]: ../../../Docs/Bug_tracking.md
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Parsed {
+    /// Usable launcher entry: `Name` and `Exec` present and non-empty.
+    Entry {
+        /// Display name (`Name`, first occurrence).
+        name: String,
+        /// Raw command line (`Exec`, field codes intact).
+        exec: String,
+        /// `Terminal` flag (last occurrence wins).
+        terminal: bool,
+    },
+    /// Skipped by design: `NoDisplay=true` or `Hidden=true`. Silent.
+    Hidden,
+    /// Skipped because the file is unreadable or lacks `Name`/`Exec`.
+    /// The only case worth a stderr diagnostic.
+    Malformed,
+}
+
+/// Parse one `.desktop` file into a [`Parsed`] outcome.
 ///
 /// Whole-file key scan (like the bash `grep -E` prefilter, not section
 /// aware): first `Name`/`Exec` win, last `Terminal`/`NoDisplay`/`Hidden`
-/// win. Returns `None` (skip) on IO errors, missing `Name`/`Exec`, or
-/// `NoDisplay`/`Hidden` set to `true`. Lossy UTF-8: undecodable bytes
-/// become `U+FFFD` instead of failing the whole scan.
-fn read_entry(path: &Path) -> Option<(String, String, bool)> {
-    let bytes = std::fs::read(path).ok()?;
+/// win. Lossy UTF-8: undecodable bytes become `U+FFFD` instead of failing
+/// the whole scan.
+fn read_entry(path: &Path) -> Parsed {
+    let Ok(bytes) = std::fs::read(path) else {
+        return Parsed::Malformed;
+    };
     let text = String::from_utf8_lossy(&bytes);
     let mut name: Option<String> = None;
     let mut exec: Option<String> = None;
@@ -235,12 +341,24 @@ fn read_entry(path: &Path) -> Option<(String, String, bool)> {
             _ => {}
         }
     }
-    let name = name.filter(|value| !value.is_empty())?;
-    let exec = exec.filter(|value| !value.is_empty())?;
+    // Checked before the field check: `NoDisplay`/`Hidden` means "never
+    // show this", so such a file is skipped by design even when its body is
+    // also incomplete — reporting it as malformed would be the same false
+    // positive as reporting it at all.
     if nodisplay || hidden {
-        return None;
+        return Parsed::Hidden;
     }
-    Some((name, exec, terminal))
+    let (Some(name), Some(exec)) = (
+        name.filter(|value| !value.is_empty()),
+        exec.filter(|value| !value.is_empty()),
+    ) else {
+        return Parsed::Malformed;
+    };
+    Parsed::Entry {
+        name,
+        exec,
+        terminal,
+    }
 }
 
 /// Bash-cache sort line: `name\texec-stripped\tterm`.
@@ -279,9 +397,65 @@ mod tests {
             "[Desktop Entry]\nName=First\nName=Second\nExec=one\nExec=two\nTerminal=false\nTerminal=true\n",
         )
         .expect("write fixture");
-        let (_, exec, terminal) = read_entry(&path).expect("parses");
+        let parsed = read_entry(&path);
+        let Parsed::Entry { exec, terminal, .. } = parsed else {
+            panic!("parses: {parsed:?}");
+        };
         assert_eq!(exec, "one");
         assert!(terminal, "last Terminal wins");
+        std::fs::remove_file(&path).expect("cleanup");
+    }
+
+    #[test]
+    fn parse_separates_hidden_by_design_from_malformed() {
+        // One fixture per outcome class (see `tests/fixtures/launch/`).
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("fixtures")
+            .join("launch");
+        assert_eq!(
+            read_entry(&dir.join("nodisplay-app.desktop")),
+            Parsed::Hidden,
+            "NoDisplay=true is skipped by design"
+        );
+        assert_eq!(
+            read_entry(&dir.join("hidden-app.desktop")),
+            Parsed::Hidden,
+            "Hidden=true is skipped by design"
+        );
+        assert_eq!(
+            read_entry(&dir.join("noexec-app.desktop")),
+            Parsed::Malformed,
+            "missing Exec is malformed"
+        );
+        assert_eq!(
+            read_entry(&dir.join("malformed.desktop")),
+            Parsed::Malformed,
+            "no keys at all is malformed"
+        );
+        assert_eq!(
+            read_entry(&dir.join("missing.desktop")),
+            Parsed::Malformed,
+            "unreadable file is malformed"
+        );
+        assert!(
+            matches!(
+                read_entry(&dir.join("onlyshow-app.desktop")),
+                Parsed::Entry { .. }
+            ),
+            "OnlyShowIn/NotShowIn are ignored, not a skip"
+        );
+    }
+
+    #[test]
+    fn hidden_wins_over_an_incomplete_body() {
+        // A file that is both hidden and field-less is skipped *by design*,
+        // so it must not be reported as malformed (B-020).
+        let dir = fixture_dir("hidden-incomplete");
+        std::fs::create_dir_all(&dir).expect("fixture dir");
+        let path = dir.join("both.desktop");
+        std::fs::write(&path, "[Desktop Entry]\nName=Gone\nHidden=true\n").expect("write");
+        assert_eq!(read_entry(&path), Parsed::Hidden);
         std::fs::remove_file(&path).expect("cleanup");
     }
 
