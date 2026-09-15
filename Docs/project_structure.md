@@ -108,10 +108,22 @@ and took out all seven keybinds.
    can round-trip history entries. `wallpaper` reuses it over the absolute
    path and adds a hidden `--resolve` lookup, since paths contain spaces.
    (Hash fn: std-only in v1, no extra deps.)
-5. **`target/` gitignored + stow-ignored.** Entries required in both
-   `.gitignore` and `.stow-local-ignore`: `flex/target/`. Never commit build
-   artifacts. `Cargo.lock` IS committed (Q5) — it is now also what pins the
+5. **`target/` gitignored.** `.gitignore` carries `flex/target/`; never commit
+   build artifacts. `Cargo.lock` IS committed (Q5) — it is also what pins the
    exact `flex-core` git revision.
+   **Stow ignore files are per-package, not per-repo.** Verified against stow
+   2.4.1: `stow -vvvv` prints "Using built-in ignore list" even with a
+   root-level `.stow-local-ignore` present, because stow searches for
+   `<stow-dir>/<package>/.stow-local-ignore`. The root file is therefore inert
+   — a real trap, since its `flex/target/` line looks like it works. Working
+   lists live inside the packages that need them: `kitty/.stow-local-ignore`
+   (`current-theme.conf`) and `waybar/.stow-local-ignore` (`theme.css`,
+   `waybar-fonts.css`) keep the theme generator's files out of stow's way so
+   `stow -R kitty waybar` does not abort. Pattern semantics: a pattern with no
+   `/` is matched against the **basename** (stow anchors it automatically); a
+   pattern containing `/` is matched against the full path prefixed with `/`,
+   so `^package/...$` can never match. A package's own ignore file is always
+   ignored from stowing.
 6. **No `serde`/`toml` in v1.** CI grep gate rejects them:
    `! rg -l '"serde"|"toml"|serde::|toml::' flex-rice/src flex-rice/tests`.
    Config is CLI flags + hardcoded `Theme` only.
