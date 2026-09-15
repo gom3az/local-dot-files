@@ -21,6 +21,20 @@ commit `cbdc90f` instead of an approximation of it. `Docs/design_system.md` is
 rewritten with a `file:line` citation per rule, and `tests/compliance.rs` pins
 one assertion per citation.
 
+Workspace split: `flex/` is now a cargo workspace, cut along the line that
+matters for reuse. **`flex-core`** is the engine — rendering, filtering, keys,
+the design system, kitty-graphics previews — with no machine-specific path, so
+`cargo package -p flex-core` produces a publishable crate. **`flex-rice`** is
+this rice's glue: the eight providers, the `flex` binary and the wrappers,
+marked `publish = false`. Dependencies run one way, and the engine's last reach
+into providers is gone: `Menu::tick`'s hardcoded `center`/`wifi` dispatch is
+now the `Menu::on_tick` seam taking a `TickHook`, with `flex-rice::menu()`
+installing the dispatcher (build menus with it, or those two providers stop
+refreshing). Every test kept its subject — 331 pass, with the same per-suite
+counts as before — the wrappers stay covered by Rust tests in
+`flex-rice/tests`, and the binary still lands at `target/release/flex`, so the
+`~/.local/bin/flex` symlink and all 13 wrapper references are untouched.
+
 ### Added
 - `flex wifi` provider (`src/providers/wifi.rs`): the network dialog. Rows are
   `Turn Wi-Fi Off`/`Turn Wi-Fi On` (radio state read from `nmcli radio wifi`,

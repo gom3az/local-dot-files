@@ -1,0 +1,26 @@
+[package]
+name = "flex-core"
+description = "Reusable Rust TUI menu engine: menu rendering, fuzzy filtering, key handling and kitty-graphics previews"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords = ["tui", "menu", "launcher", "ratatui"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+anyhow.workspace = true
+crossterm.workspace = true
+ratatui.workspace = true
+unicode-width.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "rerank"
+harness = false
+
+[lints]
+workspace = true

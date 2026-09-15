@@ -6,6 +6,28 @@ The library never executes side effects; thin `wrappers/*.sh` scripts parse the
 `ACTION:` line and perform the real work (shutdown, clipboard copy, app exec,
 wallpaper swap, Wi-Fi connect, …).
 
+## Workspace layout
+
+The workspace is split along the line that matters for reuse:
+
+| Crate | What it is | Publishable |
+|---|---|---|
+| `flex-core` | The engine: menu/list rendering, fuzzy filtering, key handling, the design system, kitty-graphics previews. Generic — no machine-specific path anywhere. | Yes |
+| `flex-rice` | This Hyprland rice's glue: the eight providers, the `flex` binary and the shell wrappers under `flex-rice/wrappers/`. Reads `~/.config/themes`, `hyprpaper.conf`, `~/.cache/cliphist` and ML4W's wallpaper cache. | No (`publish = false`) |
+
+Dependencies run one way (`flex-rice` → `flex-core`). The engine's only former
+reach into providers is now a seam: `Menu::on_tick` takes a `TickHook`, and
+`flex-rice` supplies the one that refreshes `center` gauges and picks up a
+finished `wifi` scan — build menus in this repo with `flex_rice::menu(…)`,
+which installs it.
+
+```sh
+cargo test                       # both crates (-p flex-core / -p flex-rice to scope)
+cargo build --release            # → target/release/flex (what the wrappers exec)
+cargo clippy --all-targets -- -D warnings
+cargo package -p flex-core       # the library half packages on its own
+```
+
 ## `ACTION:` protocol
 
 On success the binary prints **exactly one line** to stdout:
@@ -49,7 +71,7 @@ Each wrapper owns its side effects. The library/binary only *selects*.
 | screenshot flow (`screenshot.sh` deleted 2026-09-15) | `shot` | `wrappers/flex-shot.sh` | ✅ cut over (M3; keybind → `flex-shot.sh`, pipeline runs post-TUI) |
 | `theme-switcher.sh` (`pick()` delegates; the `rofi` arm was removed 2026-09-15; list/current/activate/delete intact) | `theme` | `wrappers/flex-theme.sh` | ✅ cut over (M3; keybind → `flex-theme.sh`) |
 | `power-menu.sh` (deleted 2026-09-15) | `power` | `wrappers/flex-power.sh` | ✅ cut over LAST (M6; `SUPER+M` + waybar `custom/power` → `flex-power.sh`, `DRY_RUN=1` blast-radius gate, `flex-tui.sh` deleted — zero sourcers remain) |
-| `wallpaper-picker.sh` (delegating stub; `picker-chrome.sh` deleted 2026-09-15) | `wallpaper` | `wrappers/flex-wallpaper.sh` | ✅ cut over (keybind `SUPER+W` → `flex-wallpaper.sh`, fzf+`kitty icat` previews replaced by the kitty-graphics pane in `src/preview.rs`, `set-wallpaper.sh` still owns the swap — image only, the theme is left alone) |
+| `wallpaper-picker.sh` (delegating stub; `picker-chrome.sh` deleted 2026-09-15) | `wallpaper` | `wrappers/flex-wallpaper.sh` | ✅ cut over (keybind `SUPER+W` → `flex-wallpaper.sh`, fzf+`kitty icat` previews replaced by the kitty-graphics pane in `flex-core/src/preview.rs`, `set-wallpaper.sh` still owns the swap — image only, the theme is left alone) |
 | `rofi/scripts/wifi.sh` (REMOVED 2026-09-15 with the whole `rofi` package) | `wifi` | `wrappers/flex-wifi.sh` | ✅ cut over (M8; Waybar `network` on-click → `flex-wifi.sh`; the rofi picker's signal bars/lock icons became the row metas, `nmcli` still owns every side effect) |
 
 The superseded rofi pickers are gone: the `rofi` stow package was removed on
@@ -70,7 +92,7 @@ row-set reference (no functional sourcers since M5), and
 `flex wallpaper` is the only provider with a preview pane. `render` reserves
 the right 45 % of the list area (dropped under 40 columns); `run` paints the
 focused row's `Row::preview_image` there with kitty graphics protocol escapes
-after every frame (`src/preview.rs`) — no fzf, no icat, no image crate. PNG
+after every frame (`flex-core/src/preview.rs`) — no fzf, no icat, no image crate. PNG
 sources are transmitted straight from disk (`t=f`); other formats are
 converted once into `$XDG_CACHE_HOME/flex/previews` with ImageMagick
 (`FLEX_PREVIEW_CONVERT`) and the PNG is reused afterwards. kitty stretches an

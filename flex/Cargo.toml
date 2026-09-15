@@ -1,38 +1,50 @@
-[package]
-name = "flex"
+# flex — workspace root.
+#
+# The crate is split along the line that matters for reuse:
+#
+#   flex-core   the reusable engine. Generic menu/list rendering, filtering,
+#               key handling, the design system, kitty-graphics previews.
+#               No machine-specific paths — publishable as-is.
+#   flex-rice   this Hyprland rice's glue: the eight providers that adapt
+#               hyprpaper/cliphist/nmcli/wpctl/… to the engine, the `flex`
+#               binary, and the shell wrappers Hyprland and Waybar call.
+#               Machine-specific by nature; never published.
+#
+# Dependencies point one way (flex-rice → flex-core), so flex-core can be
+# extracted to its own repository without touching its source.
+
+[workspace]
+members = ["flex-core", "flex-rice"]
+resolver = "2"
+
+[workspace.package]
 version = "1.0.0"
 edition = "2021"
-description = "Reusable Rust TUI menu library (power/launch/clip/center/shot/theme/wallpaper/wifi)"
 license = "MIT OR Apache-2.0"
 authors = ["flex contributors"]
 repository = "https://example.invalid/flex"
-keywords = ["tui", "menu", "launcher", "ratatui"]
-categories = ["command-line-utilities"]
 
-[dependencies]
+[workspace.dependencies]
 ratatui = { version = "=0.29.0", features = ["crossterm"] }
 crossterm = "0.28"
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"
 # Non-CJK widths: ambiguous codepoints are narrow (default-features off drops
-# the `cjk` feature that would make them wide). See `src/width.rs`.
+# the `cjk` feature that would make them wide). See `flex-core/src/width.rs`.
 unicode-width = { version = "0.2", default-features = false }
 
-[dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
-pretty_assertions = "1"
+[workspace.dependencies.criterion]
+version = "0.5"
+features = ["html_reports"]
 
-[[bench]]
-name = "rerank"
-harness = false
-
-[lints.rust]
+[workspace.lints.rust]
 unsafe_code = "deny"
 
-[lints.clippy]
+[workspace.lints.clippy]
 all = "deny"
 pedantic = "deny"
 
+# Profiles are only honoured at the workspace root.
 [profile.release]
 lto = true
 strip = true
