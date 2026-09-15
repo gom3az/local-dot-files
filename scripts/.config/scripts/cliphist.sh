@@ -93,7 +93,7 @@ unpin() {
 # `cliphist.sh sel` keeps working; add/pin/unpin/read_current below are
 # untouched.
 pick() {
-    exec "$HOME/dotfiles/flex/wrappers/flex-clip.sh" "$@"
+    exec "$HOME/dotfiles/flex/flex-rice/wrappers/flex-clip.sh" "$@"
 }
 
 case "${1:-}" in

@@ -191,24 +191,24 @@ hl.config({
 ---------------------
 
 local mainMod = "SUPER"
-hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-shot.sh"))
+hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-shot.sh"))
 hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())
 hl.bind(
 	mainMod .. " + M",
-	hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-power.sh")
+	hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-power.sh")
 )
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-center.sh"))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-launch.sh"))
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-launch.sh"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-wallpaper.sh"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-theme.sh"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-center.sh"))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-launch.sh"))
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-launch.sh"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-wallpaper.sh"))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-theme.sh"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
-hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/dotfiles/flex/wrappers/flex-clip.sh"))
+hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/dotfiles/flex/flex-rice/wrappers/flex-clip.sh"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.config/scripts/audio-mixer-toggle.sh"))

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wallpaper-picker.sh — delegating stub: the picker is `flex wallpaper` now
-# (see flex/wrappers/flex-wallpaper.sh), which draws the list and the image
+# (see flex/flex-rice/wrappers/flex-wallpaper.sh), which draws the list and the image
 # preview pane in the TUI instead of shelling out to fzf + `kitty +kitten
 # icat`. The fzf selection list lives on in `src/providers/wallpaper.rs`
 # (same roots, same `-maxdepth 2 -iname` filter, same basename labels) and
@@ -10,4 +10,4 @@
 # script sourced, was deleted with the cutover.
 set -euo pipefail
 
-exec "$HOME/dotfiles/flex/wrappers/flex-wallpaper.sh" "$@"
+exec "$HOME/dotfiles/flex/flex-rice/wrappers/flex-wallpaper.sh" "$@"

@@ -178,7 +178,7 @@ delete_theme() {
 # only delegates so `theme-switcher.sh pick` keeps working;
 # list/current/activate/delete below are untouched.
 pick() {
-    exec "$HOME/dotfiles/flex/wrappers/flex-theme.sh" "$@"
+    exec "$HOME/dotfiles/flex/flex-rice/wrappers/flex-theme.sh" "$@"
 }
 
 # === Main ===
