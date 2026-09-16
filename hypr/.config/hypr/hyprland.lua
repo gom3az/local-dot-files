@@ -193,6 +193,7 @@ hl.config({
 
 local mainMod = "SUPER"
 hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-shot"))
+hl.bind(mainMod .. " + SHIFT + " .. "s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-record stop"))
 hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
