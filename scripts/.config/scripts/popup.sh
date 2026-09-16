@@ -21,10 +21,11 @@ esac
 # Toggle: if a popup of this variant is already open, close it instead of
 # stacking another one (same UX as the audio mixer toggle). The trailing
 # space keeps menu/menu-wide patterns from colliding with each other, and
-# this script's own cmdline ("popup.sh <variant> ...") never contains the
-# "kitty --class ..." substring, so pgrep can't match us.
-if pgrep -f "kitty --class kitty-${variant} " >/dev/null 2>&1; then
-    pkill -f "kitty --class kitty-${variant} "
+# this script's own cmdline ("popup.sh <variant> ..." / "flex popup
+# <variant> ...") never contains the "kitty --class ..." substring, so pgrep
+# can't match us.
+if pgrep -f "kitty --class flex-${variant} " >/dev/null 2>&1; then
+    pkill -f "kitty --class flex-${variant} "
     exit 0
 fi
 
@@ -33,5 +34,5 @@ fi
 # reference surface. Main terminal config is untouched.
 font_size=10
 
-kitty --class "kitty-$variant" -o font_size=$font_size -e env POPUP_KITTY=1 "$@" </dev/null >/dev/null 2>&1 &
+kitty --class "flex-$variant" -o font_size=$font_size -e env POPUP_KITTY=1 "$@" </dev/null >/dev/null 2>&1 &
 disown || true

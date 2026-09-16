@@ -84,6 +84,7 @@ end)
 -------------------------------
 
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Environment-variables/
+hl.env("TERMINAL", terminal)
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "breeze_cursors")
@@ -283,16 +284,16 @@ hl.window_rule({
 	size = { 640, 420 },
 })
 
--- Floating kitty popup menus (flex TUIs + htop kill-menu, launched via popup.sh).
+-- Floating flex popup menus (flex TUIs + htop kill-menu, launched via flex popup).
 hl.window_rule({
 	name = "popup-menu",
-	match = { class = "kitty-menu" },
+	match = { class = "flex-menu" },
 	float = true,
 	size = { 640, 420 },
 })
 hl.window_rule({
 	name = "popup-menu-wide",
-	match = { class = "kitty-menu-wide" },
+	match = { class = "flex-menu-wide" },
 	float = true,
 	size = { 1000, 600 },
 })
