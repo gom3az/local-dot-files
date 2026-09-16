@@ -211,7 +211,7 @@ hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.local/bin/flex-theme"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
 hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip pin"))
-hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
+hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.local/bin/flex-proc"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.config/scripts/audio-mixer-toggle.sh"))
 hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
@@ -284,7 +284,7 @@ hl.window_rule({
 	size = { 640, 420 },
 })
 
--- Floating flex popup menus (flex TUIs + htop kill-menu, launched via flex popup).
+-- Floating flex popup menus (flex TUIs, launched via flex popup).
 -- `stay_focused` keeps the popup's keyboard focus while it is visible, so
 -- moving the cursor off it (over a fullscreen game, with follow_mouse=1) does
 -- not hand focus back to the window under the cursor.

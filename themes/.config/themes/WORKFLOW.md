@@ -120,7 +120,7 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 | `~/.config/scripts/theme-switcher.sh` | CLI + TUI picker (`flex theme`) for switching named themes | Yes (kitty popup) |
 | `~/.config/scripts/generate-static-theme.sh` | Builds a named theme from a JSON color definition | No |
 | `~/.local/bin/flex-clip` | Clipboard history: TUI browse (`flex clip`) plus `add`/`pin`/`unpin`/`current` verbs (`wl-paste --watch flex-clip add`) | Yes (kitty popup) |
-| `~/.config/scripts/kill-menu.sh` | Live TUI process manager (htop-based) | Yes (kitty popup) |
+| `~/.local/bin/flex-proc` | Native process manager: filter `/proc`, Enter = SIGTERM, Delete = SIGKILL, `m` = stop/continue | Yes (kitty popup) |
 
 ## Usage
 
@@ -189,7 +189,7 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 | `SUPER+T` | Open theme switcher (flex) |
 | `SUPER+N` | Toggle swaync notification panel |
 | `SUPER+SHIFT+V` | Browse clipboard history (flex) |
-| `SUPER+SHIFT+Esc` | Kill a process (htop TUI) |
+| `SUPER+SHIFT+Esc` | Kill a process (`flex proc` process manager) |
 | `SUPER+R` / `SUPER+Space` | Launch app launcher (flex) |
 
 ## Troubleshooting
