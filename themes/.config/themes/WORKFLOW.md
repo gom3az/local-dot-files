@@ -113,7 +113,7 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Script | Purpose | Interactive? |
 |---|---|---|
-| `~/.local/bin/flex-wallpaper` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane; `wallpaper-picker.sh` is a delegating stub | Yes (kitty popup) |
+| `~/.local/bin/flex-wallpaper` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane | Yes (kitty popup) |
 | `~/.config/scripts/set-wallpaper.sh` | Sets wallpaper via hyprpaper socket. Leaves the theme untouched | No |
 | `~/.config/scripts/generate-theme.sh` | Extracts colors from a wallpaper, generates all format files, manages symlinks, reloads configs. Persists to `available/` only with `--save-as` | No |
 | `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
