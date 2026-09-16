@@ -23,7 +23,7 @@ Pre-built color schemes under `themes/available/` are propagated across every ap
 | Multiplexer | tmux |
 | Shell | Zsh (Starship) |
 | File mgr | Yazi |
-| Notifications | SwayNC |
+| Notifications | flex-notify (Native D-Bus daemon + Right-Side Drawer TUI) |
 
 ## Design
 
@@ -33,7 +33,7 @@ See `themes/.config/themes/WORKFLOW.md` for the full architecture.
 
 ## flex
 
-The launcher and the wallpaper/theme/clip/wifi pickers are not in this repo.
+The launcher, process manager, and the wallpaper/theme/clip/wifi/mixer/net/bt/notify pickers are not in this repo.
 They live in [`gom3az/flex`](https://github.com/gom3az/flex) — a Cargo
 workspace holding the engine (`flex-core`) and the rice glue, the `flex`
 binary and the provider binaries (`flex-rice`).
@@ -46,7 +46,7 @@ through two stable symlinks:
 | `~/.local/bin/flex` | `<checkout>/target/release/flex` |
 | `~/.local/bin/flex-<provider>` | `<checkout>/target/release/flex-<provider>` |
 
-Moving or re-cloning the checkout therefore means re-pointing those eleven
+Moving or re-cloning the checkout therefore means re-pointing those fifteen
 symlinks — the Hyprland binds and the Waybar on-clicks stay as they are.
 
 ## Installing Hyprland on Fedora
