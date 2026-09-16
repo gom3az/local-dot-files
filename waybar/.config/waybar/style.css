@@ -78,6 +78,30 @@ window#waybar {
     border-bottom: 2px solid @red;
 }
 
+/* ---------- Notification Center ---------- */
+#custom-notification {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px;
+    margin: 4px;
+    border-bottom: 2px solid @lavender;
+}
+
+#custom-notification.has-unread {
+    color: @peach;
+    border-bottom: 2px solid @peach;
+}
+
+#custom-notification.critical {
+    color: @red;
+    border-bottom: 2px solid @red;
+}
+
+#custom-notification.dnd {
+    color: @overlay1;
+    border-bottom: 2px solid @overlay1;
+}
+
 /* ---------- Power group (combined) ---------- */
 #power-profiles-daemon {
     color: @text;

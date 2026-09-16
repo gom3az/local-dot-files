@@ -24,6 +24,7 @@
     "battery",
     "clock",
     "power-profiles-daemon",
+    "custom/notification",
     "custom/power"
   ],
   "clock": {
@@ -99,6 +100,14 @@
     "on-click": "~/.local/bin/flex-record stop",
     "interval": 2,
     "tooltip": false
+  },
+  "custom/notification": {
+    "format": "{}",
+    "exec": "$HOME/.local/bin/flex-notify",
+    "interval": 2,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "$HOME/.local/bin/flex notify"
   },
   "custom/power": {
     "format": "",
