@@ -282,6 +282,7 @@ hl.window_rule({
 	match = { class = "kitty-wiremix" },
 	float = true,
 	size = { 640, 420 },
+	stay_focused = true,
 })
 
 -- Floating flex popup menus (flex TUIs, launched via flex popup).
@@ -308,7 +309,7 @@ hl.window_rule({
 -- popup opens unfocused and keystrokes keep reaching the game. Re-focus flex
 -- popups explicitly once mapped; `hl.dsp.focus` is not gated by that guard.
 hl.on("window.open", function(w)
-	if w.class == "flex-menu" or w.class == "flex-menu-wide" then
+	if w.class == "flex-menu" or w.class == "flex-menu-wide" or w.class == "kitty-wiremix" then
 		hl.dispatch(hl.dsp.focus({ window = w }))
 	end
 end)
