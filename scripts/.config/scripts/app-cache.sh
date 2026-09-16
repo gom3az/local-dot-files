@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # app-cache.sh — shared .desktop app list builder.
 # Formerly sourced by control-center.sh (deleted in the M5 center cutover;
-# flex-launch.sh resolves .desktop ids directly since the M2 launcher
+# flex-launch resolves .desktop ids directly since the M2 launcher
 # cutover) so both saw the same 90-app list. Kept intentionally: the flex
 # center Launchers tab reuses the same scan semantics, and this file
 # remains the bash reference for the row set. Rows are TAB-separated:

@@ -192,24 +192,24 @@ hl.config({
 ---------------------
 
 local mainMod = "SUPER"
-hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-shot.sh"))
+hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-shot"))
 hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())
 hl.bind(
 	mainMod .. " + M",
-	hl.dsp.exec_cmd("$HOME/.local/bin/flex-power.sh")
+	hl.dsp.exec_cmd("$HOME/.local/bin/flex-power")
 )
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/.local/bin/flex-center.sh"))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch.sh"))
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch.sh"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/.local/bin/flex-wallpaper.sh"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.local/bin/flex-theme.sh"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/.local/bin/flex-center"))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/.local/bin/flex-wallpaper"))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.local/bin/flex-theme"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
-hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip.sh"))
+hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.config/scripts/cliphist.sh pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.config/scripts/kill-menu.sh"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.config/scripts/audio-mixer-toggle.sh"))

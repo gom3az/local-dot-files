@@ -88,12 +88,12 @@ unpin() {
 
 # === Flexible TUI picker (cut over to `flex clip`, M4) ===
 # The bash Flex UI that lived here is retired: `flex clip` renders the
-# picker and `flex-clip.sh` resolves hashes + performs copies/pins/deletes
+# picker and `flex-clip` resolves hashes + performs copies/pins/deletes
 # AFTER the TUI exits. This entry point only delegates so
 # `cliphist.sh sel` keeps working; add/pin/unpin/read_current below are
 # untouched.
 pick() {
-    exec "$HOME/.local/bin/flex-clip.sh" "$@"
+    exec "$HOME/.local/bin/flex-clip" "$@"
 }
 
 case "${1:-}" in
