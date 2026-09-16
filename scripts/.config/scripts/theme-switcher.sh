@@ -174,8 +174,10 @@ delete_theme() {
 
 # === Flexible TUI picker (cut over to `flex theme`, M3) ===
 # The bash Flex UI that lived here is retired: `flex theme` renders the
-# picker and `flex-theme` calls back into `activate`. This entry point
-# only delegates so `theme-switcher.sh pick` keeps working;
+# picker and `flex-theme` activates the selection in-process now (see
+# flex/flex-rice/src/exec/theme.rs); `activate` below remains as a standalone
+# utility and a `$THEME_SWITCHER` override, no longer on the flex call path.
+# This entry point only delegates so `theme-switcher.sh pick` keeps working;
 # list/current/activate/delete below are untouched.
 pick() {
     exec "$HOME/.local/bin/flex-theme" "$@"

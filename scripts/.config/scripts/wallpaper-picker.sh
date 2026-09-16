@@ -4,7 +4,10 @@
 # preview pane in the TUI instead of shelling out to fzf + `kitty +kitten
 # icat`. The fzf selection list lives on in `src/providers/wallpaper.rs`
 # (same roots, same `-maxdepth 2 -iname` filter, same basename labels) and
-# the picked path still goes through `set-wallpaper.sh`.
+# the picked path is now set in-process by the Rust setter (see
+# flex/flex-rice/src/exec/wallpaper.rs); `set-wallpaper.sh` remains as a
+# standalone utility and a `$SET_WALLPAPER` override, no longer on the
+# flex call path.
 #
 # Kept so external callers keep working; `picker-chrome.sh`, which only this
 # script sourced, was deleted with the cutover.
