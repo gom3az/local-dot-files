@@ -37,9 +37,6 @@ The system switches between multiple named themes.
     └── gruvbox/
 ```
 
-`tokens.json` and `overrides/` are legacy inputs of the removed generator
-and are no longer read.
-
 ### Theme Management
 
 ```bash

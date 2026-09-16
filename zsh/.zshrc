@@ -93,3 +93,7 @@ setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks before saving
 # ==========================
 
 eval "$(zoxide init --cmd cd zsh)"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/test/.local/bin:$PATH"
