@@ -321,10 +321,12 @@ hl.window_rule({
 	float = true,
 	size = { 480, 80 },
 	move = { 2064, 52 },
-	nofocus = true,
-	noborder = true,
-	noshadow = true,
-	noblur = true,
+	no_focus = true,
+	no_initial_focus = true,
+	border_size = 0,
+	no_shadow = true,
+	no_blur = true,
+	no_anim = true,
 	pin = true,
 })
 
