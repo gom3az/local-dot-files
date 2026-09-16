@@ -119,7 +119,7 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 | `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
 | `~/.config/scripts/theme-switcher.sh` | CLI + TUI picker (`flex theme`) for switching named themes | Yes (kitty popup) |
 | `~/.config/scripts/generate-static-theme.sh` | Builds a named theme from a JSON color definition | No |
-| `~/.config/scripts/cliphist.sh` | Clipboard history via wl-paste --watch, `flex clip` browse | Yes (kitty popup) |
+| `~/.local/bin/flex-clip` | Clipboard history: TUI browse (`flex clip`) plus `add`/`pin`/`unpin`/`current` verbs (`wl-paste --watch flex-clip add`) | Yes (kitty popup) |
 | `~/.config/scripts/kill-menu.sh` | Live TUI process manager (htop-based) | Yes (kitty popup) |
 
 ## Usage
