@@ -208,7 +208,7 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/.local/bin/flex-wallpaper"))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("$HOME/.local/bin/flex-theme"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("$HOME/.local/bin/flex notify"))
 hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip"))
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.local/bin/flex-proc"))
@@ -303,13 +303,26 @@ hl.window_rule({
 	size = { 1000, 600 },
 	stay_focused = true,
 })
+hl.window_rule({
+	name = "popup-menu-drawer",
+	match = { class = "flex-notify-center" },
+	float = true,
+	size = { 460, 1340 },
+	move = { "100%-465", 48 },
+	stay_focused = true,
+})
 
 -- A fullscreen game holding an active pointer constraint suppresses the
 -- initial focus of any new window (Window.cpp: `!isConstrained()`), so the
 -- popup opens unfocused and keystrokes keep reaching the game. Re-focus flex
 -- popups explicitly once mapped; `hl.dsp.focus` is not gated by that guard.
 hl.on("window.open", function(w)
-	if w.class == "flex-menu" or w.class == "flex-menu-wide" or w.class == "kitty-wiremix" then
+	if
+		w.class == "flex-menu"
+		or w.class == "flex-menu-wide"
+		or w.class == "kitty-wiremix"
+		or w.class == "flex-notify-center"
+	then
 		hl.dispatch(hl.dsp.focus({ window = w }))
 	end
 end)
