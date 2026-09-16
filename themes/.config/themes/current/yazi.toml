@@ -95,7 +95,7 @@ rules = [
     { mime = "application/gzip", fg = "#f38ba8" },
     { mime = "application/zip", fg = "#f38ba8" },
     { mime = "application/x-{tar,bzip*}*", fg = "#f38ba8" },
-    { mime = "application/pdf", fg = "#f9e2af" },
+    { mime = "application/pdf", fg = "#fab387" },
     { url = "*/", fg = "#89b4fa" },
     { url = "*", is = "orphan", fg = "#f38ba8" },
 ]

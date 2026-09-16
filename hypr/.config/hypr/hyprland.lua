@@ -285,15 +285,30 @@ hl.window_rule({
 })
 
 -- Floating flex popup menus (flex TUIs + htop kill-menu, launched via flex popup).
+-- `stay_focused` keeps the popup's keyboard focus while it is visible, so
+-- moving the cursor off it (over a fullscreen game, with follow_mouse=1) does
+-- not hand focus back to the window under the cursor.
 hl.window_rule({
 	name = "popup-menu",
 	match = { class = "flex-menu" },
 	float = true,
 	size = { 640, 420 },
+	stay_focused = true,
 })
 hl.window_rule({
 	name = "popup-menu-wide",
 	match = { class = "flex-menu-wide" },
 	float = true,
 	size = { 1000, 600 },
+	stay_focused = true,
 })
+
+-- A fullscreen game holding an active pointer constraint suppresses the
+-- initial focus of any new window (Window.cpp: `!isConstrained()`), so the
+-- popup opens unfocused and keystrokes keep reaching the game. Re-focus flex
+-- popups explicitly once mapped; `hl.dsp.focus` is not gated by that guard.
+hl.on("window.open", function(w)
+	if w.class == "flex-menu" or w.class == "flex-menu-wide" then
+		hl.dispatch(hl.dsp.focus({ window = w }))
+	end
+end)

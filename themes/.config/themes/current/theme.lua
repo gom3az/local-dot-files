@@ -19,17 +19,17 @@ theme.colors = {
     subtext1 = "bac2de",
     text = "cdd6f4",
     red = "f38ba8",
-    maroon = "f38ba8",
-    peach = "f9e2af",
+    maroon = "eba0ac",
+    peach = "fab387",
     yellow = "f9e2af",
     green = "a6e3a1",
     teal = "94e2d5",
-    sky = "94e2d5",
-    sapphire = "89b4fa",
+    sky = "89dceb",
+    sapphire = "74c7ec",
     blue = "89b4fa",
     mauve = "cba6f7",
-    pink = "cba6f7",
-    lavender = "94e2d5",
+    pink = "f5c2e7",
+    lavender = "b4befe",
 }
 
 function theme.rgba(hex, alpha)

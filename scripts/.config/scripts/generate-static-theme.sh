@@ -71,6 +71,8 @@ SAPPHIRE="${SAPPHIRE:-$COLOR4}"
 SKY="${SKY:-$COLOR6}"
 LAVENDER="${LAVENDER:-$COLOR6}"
 TEXT="${TEXT:-$FG}"
+ROSEWATER="${ROSEWATER:-$TEXT}"
+FLAMINGO="${FLAMINGO:-$TEXT}"
 SURFACE0="${SURFACE0:-$COLOR0}"
 SURFACE1="${SURFACE1:-$COLOR8}"
 SURFACE2="${SURFACE2:-$COLOR7}"
@@ -87,7 +89,7 @@ SUBTEXT1="${SUBTEXT1:-$COLOR7}"
 for var in COLOR0 COLOR1 COLOR2 COLOR3 COLOR4 COLOR5 COLOR6 COLOR7 \
            COLOR8 COLOR9 COLOR10 COLOR11 COLOR12 COLOR13 COLOR14 COLOR15 \
            BG FG CURSOR RED GREEN YELLOW BLUE MAUVE TEAL PINK MAROON PEACH \
-           SAPPHIRE SKY LAVENDER TEXT CRUST MANTLE BASE SURFACE0 SURFACE1 \
+           SAPPHIRE SKY LAVENDER TEXT ROSEWATER FLAMINGO CRUST MANTLE BASE SURFACE0 SURFACE1 \
            SURFACE2 OVERLAY0 OVERLAY1 OVERLAY2 SUBTEXT0 SUBTEXT1; do
     val="${!var:-}"
     if [[ -z "$val" || "$val" == '#' ]]; then
@@ -356,20 +358,20 @@ cat > "$OUTPUT_DIR/tmux-colors.conf" << TMUXEOF
 # Static theme: $THEME_NAME
 set -g @thm_bg "$BG"
 set -g @thm_fg "$FG"
-set -g @thm_rosewater "$TEXT"
-set -g @thm_flamingo "$TEXT"
-set -g @thm_pink "$COLOR5"
-set -g @thm_mauve "$COLOR5"
-set -g @thm_red "$COLOR1"
-set -g @thm_maroon "$COLOR1"
-set -g @thm_peach "$COLOR3"
-set -g @thm_yellow "$COLOR3"
-set -g @thm_green "$COLOR2"
-set -g @thm_teal "$COLOR6"
-set -g @thm_sky "$COLOR6"
-set -g @thm_sapphire "$COLOR4"
-set -g @thm_blue "$COLOR4"
-set -g @thm_lavender "$COLOR6"
+set -g @thm_rosewater "$ROSEWATER"
+set -g @thm_flamingo "$FLAMINGO"
+set -g @thm_pink "$PINK"
+set -g @thm_mauve "$MAUVE"
+set -g @thm_red "$RED"
+set -g @thm_maroon "$MAROON"
+set -g @thm_peach "$PEACH"
+set -g @thm_yellow "$YELLOW"
+set -g @thm_green "$GREEN"
+set -g @thm_teal "$TEAL"
+set -g @thm_sky "$SKY"
+set -g @thm_sapphire "$SAPPHIRE"
+set -g @thm_blue "$BLUE"
+set -g @thm_lavender "$LAVENDER"
 set -g @thm_subtext_1 "$SUBTEXT1"
 set -g @thm_subtext_0 "$SUBTEXT0"
 set -g @thm_overlay_2 "$OVERLAY2"
@@ -388,9 +390,9 @@ cat > "$OUTPUT_DIR/nvim-colors.lua" << NVIMEOF
 local M = {}
 
 M.colors = {
-    rosewater = "$TEXT",
-    flamingo = "$TEXT",
-    pink = "$COLOR5",
+    rosewater = "$ROSEWATER",
+    flamingo = "$FLAMINGO",
+    pink = "$PINK",
     mauve = "$MAUVE",
     red = "$RED",
     maroon = "$MAROON",
