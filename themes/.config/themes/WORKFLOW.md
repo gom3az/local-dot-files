@@ -1,6 +1,10 @@
-# Wallpaper-Driven Color Scheme — Workflow
+# Theme & Wallpaper Workflow
 
 ## Architecture
+
+Themes are pre-built, static sets under `~/.config/themes/available/`;
+`flex-theme` copies the chosen one into `current/` and repoints the app
+configs. The wallpaper is independent:
 
 ```
 SUPER+W → kitty popup → flex-wallpaper (pick an image)
@@ -10,53 +14,35 @@ SUPER+W → kitty popup → flex-wallpaper (pick an image)
                         └─ updates wallpaper via hyprpaper socket
 ```
 
-Changing the wallpaper does **not** change the theme: `flex-wallpaper` only
-swaps the image, so your current colors survive a wallpaper change. Colors are
-re-extracted from an image only when `generate-theme.sh` is run by hand:
-
-```
-generate-theme.sh [wallpaper] [--save-as <name>]
-   ├─ extract-colors.py (Pillow k-means via pywal16)
-   ├─ loads design tokens from tokens.json
-   ├─ applies overrides from overrides/global.json
-   ├─ generates theme.css   → symlinked to ~/.config/waybar/
-   ├─ generates theme.lua   → symlinked to ~/.config/hypr/
-   ├─ generates kitty.conf  → symlinked to ~/.config/kitty/
-   ├─ generates yazi.toml   → symlinked to ~/.config/yazi/
-   ├─ generates tmux-colors.conf → symlinked to ~/.config/tmux/
-   ├─ generates nvim-colors.lua  → symlinked to ~/.config/nvim/lua/theme.lua
-   ├─ saves to available/<name>/ only when --save-as is given
-   └─ reloads waybar + hyprland + kitty
-```
+Changing the wallpaper does **not** change the theme, and there is no
+wallpaper→colors generator any more: `generate-theme.sh`,
+`generate-static-theme.sh` and `extract-colors.py` were removed as unused.
+Edit a theme's files under `available/<name>/` by hand and activate it with
+`flex-theme activate <name>`.
 
 To switch between the saved themes, use `flex theme` (`SUPER+T`).
 
 ## Multiple Named Themes
 
-The system supports saving and switching between multiple named themes.
+The system switches between multiple named themes.
 
 ### Directory Layout
 
 ```
 ~/.config/themes/
 ├── current/                    # Active theme (app configs symlink here)
-├── available/                  # Saved named themes
-│   ├── catppuccin-mocha/       # Pre-built static themes
-│   ├── tokyo-night/
-│   └── gruvbox/
-├── overrides/
-│   ├── global.json             # Color overrides applied after extraction
-│   └── example.json
-└── tokens.json                 # Design tokens (fonts, radii, spacing, opacity)
+└── available/                  # Saved named themes
+    ├── catppuccin-mocha/       # Pre-built static themes
+    ├── tokyo-night/
+    └── gruvbox/
 ```
+
+`tokens.json` and `overrides/` are legacy inputs of the removed generator
+and are no longer read.
 
 ### Theme Management
 
 ```bash
-# Extract colors from a wallpaper (current one by default) into current/,
-# and keep it under a name you can switch back to later
-generate-theme.sh --save-as my-wallpaper
-
 # List available themes
 flex-theme list
 
@@ -69,33 +55,6 @@ flex-theme
 # See current theme
 flex-theme current
 ```
-
-### Generating static themes
-
-```bash
-# From a JSON color definition
-generate-static-theme.sh path/to/definition.json ~/.config/themes/available/my-theme
-
-# Then activate it
-flex-theme activate my-theme
-```
-
-## Design Tokens
-
-Non-color design properties are centralized in `~/.config/themes/tokens.json`.
-
-| Token | Default | Used By |
-|-------|---------|---------|
-| `fonts.sans` | NotoSans Nerd Font | Waybar, Kitty |
-| `fonts.mono` | NotoSans Nerd Font | Kitty |
-| `fonts.size` | 12px | Waybar, Kitty |
-| `radii.window` | 0 | Waybar |
-| `spacing.tight` | 4px | Waybar |
-| `spacing.normal` | 8px | Waybar |
-| `spacing.wide` | 16px | Waybar |
-| `opacity.background` | 0.8 | Kitty |
-| `gaps.inner` | 5 | Hyprland |
-| `gaps.outer` | 5 | Hyprland |
 
 ## File Map
 
@@ -114,10 +73,7 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 | Script | Purpose | Interactive? |
 |---|---|---|
 | `~/.local/bin/flex-wallpaper` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane; `flex-wallpaper set <path>` sets one directly | Yes (kitty popup) |
-| `~/.config/scripts/generate-theme.sh` | Extracts colors from a wallpaper, generates all format files, manages symlinks, reloads configs. Persists to `available/` only with `--save-as` | No |
-| `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
 | `~/.local/bin/flex-theme` | Theme picker (`flex theme`) plus `list`/`current`/`activate`/`delete` verbs | Yes (kitty popup) |
-| `~/.config/scripts/generate-static-theme.sh` | Builds a named theme from a JSON color definition | No |
 | `~/.local/bin/flex-clip` | Clipboard history: TUI browse (`flex clip`) plus `add`/`pin`/`unpin`/`current` verbs (`wl-paste --watch flex-clip add`) | Yes (kitty popup) |
 | `~/.local/bin/flex-proc` | Native process manager: filter `/proc`, Enter = SIGTERM, Delete = SIGKILL, `m` = stop/continue | Yes (kitty popup) |
 
@@ -135,50 +91,10 @@ Or directly:
 flex-wallpaper set ~/path/to/wallpaper.jpg
 ```
 
-### Save generated theme for reuse
-```bash
-generate-theme.sh --save-as my-favorite
-```
-
-Without `--save-as`, `generate-theme.sh` refreshes `current/` in place and
-leaves `available/` untouched.
-
 ### Switch to a static theme
 ```bash
 flex-theme activate tokyo-night
 ```
-
-### Override specific colors
-Edit `~/.config/themes/overrides/global.json`:
-```json
-{
-    "mauve": "#cba6f7",
-    "blue": "#89b4fa"
-}
-```
-Then regenerate: `~/.config/scripts/generate-theme.sh`
-
-### Customize design tokens
-Edit `~/.config/themes/tokens.json`:
-```json
-{
-    "fonts": { "sans": "FiraCode Nerd Font", "size": "12px" },
-    "radii": { "window": 6, "button": 4 }
-}
-```
-Then regenerate: `~/.config/scripts/generate-theme.sh`
-
-## Color Extraction
-
-`extract-colors.py` uses pywal16's median-cut quantization to find the 8 most dominant colors, then:
-
-1. **Darkest** → background (`color0`)
-2. **Lightest** → foreground (`color7`)
-3. **Remaining 6** → assigned to red/green/yellow/blue/mauve/teal by nearest hue
-4. **Bright variants** (`color8`–`color15`) → each base color lightened by 30%
-5. **Catppuccin-style hierarchy** → crust, mantle, base, surface0-2, overlay0-2, subtext0-1 built from background with contrast enforcement
-6. Overrides from `global.json` applied after extraction
-7. Design tokens from `tokens.json` embedded into all generated files
 
 ## Keybindings
 
@@ -193,7 +109,7 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 
 ## Troubleshooting
 
-- **Waybar colors stale** → SIGUSR2 is sent automatically by generate-theme.sh, or `pkill -SIGUSR2 waybar`
+- **Waybar colors stale** → SIGUSR2 is sent by `flex-theme activate`, or `pkill -SIGUSR2 waybar`
 - **Kitty colors stale** → SIGUSR1 is sent automatically, or `killall -SIGUSR1 kitty`
 - **Hyprland borders wrong** → `hyprctl reload` is called automatically
 - **Tmux colors not updating** → `tmux source-file ~/.config/tmux/tmux-colors.conf` or restart tmux server

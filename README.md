@@ -1,14 +1,14 @@
 # gom3az/dotfiles
 
-Hyprland rice with a wallpaper-driven dynamic theme system.
+Hyprland rice with a named theme system.
 
-Colors are extracted from a wallpaper image (via pywal16) and propagated across every app — Hyprland, Waybar, Kitty, Neovim, tmux, Yazi — as a single `themes` package.
+Pre-built color schemes under `themes/available/` are propagated across every app — Hyprland, Waybar, Kitty, Neovim, tmux, Yazi — as a single `themes` package, and switched with `flex-theme`.
 
 ## Features
 
-- **Dynamic theming** — regenerate a full color scheme from any image with `generate-theme.sh --save-as <name>`, then switch between saved schemes with `SUPER+T`. Picking a wallpaper (`SUPER+W`) changes the image only and leaves the theme alone.
-- **Multi-app coverage** — 7 apps consume the same palette and design tokens (fonts, radii, spacing, opacity).
-- **3 pre-built themes** — catppuccin-mocha, tokyo-night, gruvbox. Works with or without pywal16.
+- **Named themes** — `flex-theme list` / `flex-theme activate <name>` (or `SUPER+T`) switch between the saved schemes. Picking a wallpaper (`SUPER+W`) changes the image only and leaves the theme alone.
+- **Multi-app coverage** — 7 apps consume the same palette (fonts, radii, spacing, opacity).
+- **3 pre-built themes** — catppuccin-mocha, tokyo-night, gruvbox.
 - **Lua-driven Hyprland config** — reads colors as a Lua table, loads with fallback chain (theme.lua → colors.lua → defaults → no crash).
 
 ## Stack
@@ -27,7 +27,7 @@ Colors are extracted from a wallpaper image (via pywal16) and propagated across 
 
 ## Design
 
-Central `tokens.json` holds all design constants. Colors are extracted from a wallpaper image, merged with `overrides/global.json`, and templated into per-app configs by `generate-theme.sh`. Named themes are saved to `themes/available/` and switchable via `flex theme`; the wallpaper picker itself never rewrites them.
+Central `themes/available/` holds the pre-built color schemes. `flex-theme` copies the chosen one into `themes/current/` and repoints the per-app configs; the wallpaper picker itself never rewrites them. The old `generate-theme.sh` / `generate-static-theme.sh` / `extract-colors.py` tooling has been removed.
 
 See `themes/.config/themes/WORKFLOW.md` for the full architecture.
 
@@ -36,7 +36,7 @@ See `themes/.config/themes/WORKFLOW.md` for the full architecture.
 The launcher and the wallpaper/theme/clip/wifi pickers are not in this repo.
 They live in [`gom3az/flex`](https://github.com/gom3az/flex) — a Cargo
 workspace holding the engine (`flex-core`) and the rice glue, the `flex`
-binary and the eight provider binaries (`flex-rice`).
+binary and the provider binaries (`flex-rice`).
 
 Nothing here hardcodes the checkout path. Every bind and script reaches flex
 through two stable symlinks:
@@ -46,9 +46,8 @@ through two stable symlinks:
 | `~/.local/bin/flex` | `<checkout>/target/release/flex` |
 | `~/.local/bin/flex-<provider>` | `<checkout>/target/release/flex-<provider>` |
 
-Moving or re-cloning the checkout therefore means re-pointing those nine
-symlinks — the Hyprland binds, the Waybar on-clicks and the `scripts/*`
-delegating stubs stay as they are.
+Moving or re-cloning the checkout therefore means re-pointing those eleven
+symlinks — the Hyprland binds and the Waybar on-clicks stay as they are.
 
 ## Installing Hyprland on Fedora
 

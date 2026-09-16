@@ -1,4 +1,4 @@
-# Theme-generated: generate-theme.sh points these at
+# Theme-managed: `flex-theme activate` points these at
 # ~/.config/themes/current/{theme.css,waybar-fonts.css}.
 theme\.css
 waybar-fonts\.css
