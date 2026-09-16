@@ -73,7 +73,7 @@
       ]
     },
     "max-length": 45,
-    "on-click": "~/.config/scripts/audio-mixer-toggle.sh"
+    "on-click": "$HOME/.local/bin/flex-mixer"
   },
   "power-profiles-daemon": {
     "format": "{icon}",
@@ -86,7 +86,7 @@
     }
   },
   "custom/net-speed": {
-    "exec": "~/.config/waybar/network-speed.sh",
+    "exec": "$HOME/.local/bin/flex-net",
     "interval": 2,
     "return-type": "json",
     "tooltip": false
