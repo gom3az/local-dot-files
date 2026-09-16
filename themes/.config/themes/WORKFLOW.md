@@ -3,14 +3,14 @@
 ## Architecture
 
 ```
-SUPER+W → kitty popup → flex wallpaper (pick an image)
+SUPER+W → kitty popup → flex-wallpaper (pick an image)
                               ↓
-                     set-wallpaper.sh
+                     native setter (exec/wallpaper.rs)
                         ├─ updates hyprpaper.conf (persistence)
                         └─ updates wallpaper via hyprpaper socket
 ```
 
-Changing the wallpaper does **not** change the theme: `set-wallpaper.sh` only
+Changing the wallpaper does **not** change the theme: `flex-wallpaper` only
 swaps the image, so your current colors survive a wallpaper change. Colors are
 re-extracted from an image only when `generate-theme.sh` is run by hand:
 
@@ -58,16 +58,16 @@ The system supports saving and switching between multiple named themes.
 generate-theme.sh --save-as my-wallpaper
 
 # List available themes
-theme-switcher.sh list
+flex-theme list
 
 # Switch to a saved theme
-theme-switcher.sh activate catppuccin-mocha
+flex-theme activate catppuccin-mocha
 
 # TUI theme picker (flex)
-theme-switcher.sh pick
+flex-theme
 
 # See current theme
-theme-switcher.sh current
+flex-theme current
 ```
 
 ### Generating static themes
@@ -77,7 +77,7 @@ theme-switcher.sh current
 generate-static-theme.sh path/to/definition.json ~/.config/themes/available/my-theme
 
 # Then activate it
-theme-switcher.sh activate my-theme
+flex-theme activate my-theme
 ```
 
 ## Design Tokens
@@ -113,11 +113,10 @@ Non-color design properties are centralized in `~/.config/themes/tokens.json`.
 
 | Script | Purpose | Interactive? |
 |---|---|---|
-| `~/.local/bin/flex-wallpaper` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane | Yes (kitty popup) |
-| `~/.config/scripts/set-wallpaper.sh` | Sets wallpaper via hyprpaper socket. Leaves the theme untouched | No |
+| `~/.local/bin/flex-wallpaper` | Wallpaper picker (`flex wallpaper`): file list + kitty-graphics image preview pane; `flex-wallpaper set <path>` sets one directly | Yes (kitty popup) |
 | `~/.config/scripts/generate-theme.sh` | Extracts colors from a wallpaper, generates all format files, manages symlinks, reloads configs. Persists to `available/` only with `--save-as` | No |
 | `~/.config/scripts/extract-colors.py` | pywal16-based color extraction + Catppuccin hierarchy | No |
-| `~/.config/scripts/theme-switcher.sh` | CLI + TUI picker (`flex theme`) for switching named themes | Yes (kitty popup) |
+| `~/.local/bin/flex-theme` | Theme picker (`flex theme`) plus `list`/`current`/`activate`/`delete` verbs | Yes (kitty popup) |
 | `~/.config/scripts/generate-static-theme.sh` | Builds a named theme from a JSON color definition | No |
 | `~/.local/bin/flex-clip` | Clipboard history: TUI browse (`flex clip`) plus `add`/`pin`/`unpin`/`current` verbs (`wl-paste --watch flex-clip add`) | Yes (kitty popup) |
 | `~/.local/bin/flex-proc` | Native process manager: filter `/proc`, Enter = SIGTERM, Delete = SIGKILL, `m` = stop/continue | Yes (kitty popup) |
@@ -133,7 +132,7 @@ SUPER+W  →  flex wallpaper opens in kitty  →  navigate & select image
 
 Or directly:
 ```bash
-~/.config/scripts/set-wallpaper.sh ~/path/to/wallpaper.jpg
+flex-wallpaper set ~/path/to/wallpaper.jpg
 ```
 
 ### Save generated theme for reuse
@@ -146,7 +145,7 @@ leaves `available/` untouched.
 
 ### Switch to a static theme
 ```bash
-theme-switcher.sh activate tokyo-night
+flex-theme activate tokyo-night
 ```
 
 ### Override specific colors
@@ -199,5 +198,5 @@ Then regenerate: `~/.config/scripts/generate-theme.sh`
 - **Hyprland borders wrong** → `hyprctl reload` is called automatically
 - **Tmux colors not updating** → `tmux source-file ~/.config/tmux/tmux-colors.conf` or restart tmux server
 - **Neovim colors not updating** → restart nvim (colors load at startup via `require("theme")` + `require("nvim-hl")`)
-- **Socket errors (set-wallpaper.sh)** → stale hyprpaper socket detected; falls back to restarting hyprpaper
+- **Socket errors (flex-wallpaper)** → stale hyprpaper socket detected; falls back to restarting hyprpaper
 - **yazi "No such device or address"** → run from a real terminal (kitty via keybinding); not from inside the Claude shell
