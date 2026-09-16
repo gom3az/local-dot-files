@@ -31,6 +31,25 @@ Central `tokens.json` holds all design constants. Colors are extracted from a wa
 
 See `themes/.config/themes/WORKFLOW.md` for the full architecture.
 
+## flex
+
+The launcher and the wallpaper/theme/clip/wifi pickers are not in this repo.
+They live in [`gom3az/flex`](https://github.com/gom3az/flex) — a Cargo
+workspace holding the engine (`flex-core`) and the rice glue, the `flex`
+binary and the eight provider wrappers (`flex-rice`).
+
+Nothing here hardcodes the checkout path. Every bind and script reaches flex
+through two stable symlinks:
+
+| Path | Resolves to |
+|------|-------------|
+| `~/.local/bin/flex` | `<checkout>/target/release/flex` |
+| `~/.local/bin/flex-<provider>.sh` | `<checkout>/flex-rice/wrappers/flex-<provider>.sh` |
+
+Moving or re-cloning the checkout therefore means re-pointing those nine
+symlinks — the Hyprland binds, the Waybar on-clicks and the `scripts/*`
+delegating stubs stay as they are.
+
 ## Installing Hyprland on Fedora
 
 Hyprland is built from source (Fedora official repos don't ship it). See

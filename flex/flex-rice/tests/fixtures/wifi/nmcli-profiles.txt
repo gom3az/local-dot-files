@@ -1,3 +1,0 @@
-HomeNet:802-11-wireless
-Coffee Shop:802-11-wireless
-lo:loopback

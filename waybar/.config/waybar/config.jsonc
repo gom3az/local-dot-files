@@ -58,7 +58,7 @@
     "format-disconnected": "<span size='13000'>  </span>Disconnected",
     "format-disabled": "<span size='13000'>睊  </span>WiFi Off",
     "tooltip-format-wifi": "Signal Strenght: {signalStrength}%",
-    "on-click": "$HOME/dotfiles/flex/flex-rice/wrappers/flex-wifi.sh"
+    "on-click": "$HOME/.local/bin/flex-wifi.sh"
   },
   "pulseaudio": {
     "format": "{icon}  {volume}%  {desc}",
@@ -100,7 +100,7 @@
   },
   "custom/power": {
     "format": "",
-    "on-click": "$HOME/dotfiles/flex/flex-rice/wrappers/flex-power.sh",
+    "on-click": "$HOME/.local/bin/flex-power.sh",
     "tooltip": false
   }
 }

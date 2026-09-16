@@ -10,4 +10,4 @@
 # script sourced, was deleted with the cutover.
 set -euo pipefail
 
-exec "$HOME/dotfiles/flex/flex-rice/wrappers/flex-wallpaper.sh" "$@"
+exec "$HOME/.local/bin/flex-wallpaper.sh" "$@"

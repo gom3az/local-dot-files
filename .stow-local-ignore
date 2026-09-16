@@ -1,2 +1,0 @@
-# stow must never symlink build output (Q5)
-flex/target/

@@ -1,2 +1,0 @@
-eth0:ethernet
-lo:loopback

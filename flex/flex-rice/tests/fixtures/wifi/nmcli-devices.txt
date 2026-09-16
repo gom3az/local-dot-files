@@ -1,3 +1,0 @@
-wlan0:wifi
-eth0:ethernet
-lo:loopback
