@@ -308,7 +308,7 @@ hl.window_rule({
 	match = { class = "flex-notify-center" },
 	float = true,
 	size = { 460, 1340 },
-	move = { "100%-465", 48 },
+	move = { 2090, 48 },
 	stay_focused = true,
 })
 
