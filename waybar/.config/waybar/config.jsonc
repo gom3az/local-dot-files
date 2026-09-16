@@ -86,6 +86,7 @@
     }
   },
   "custom/net-speed": {
+    "format": "{}",
     "exec": "$HOME/.local/bin/flex-net",
     "interval": 2,
     "return-type": "json",
