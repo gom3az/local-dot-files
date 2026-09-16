@@ -313,6 +313,21 @@ hl.window_rule({
 	stay_focused = true,
 })
 
+-- Transient notification toast: top-right corner, no focus steal, no borders.
+-- Width=480 (~60 chars at 11pt), Height=80 (3 lines).  X=2560-480-16=2064, Y=52.
+hl.window_rule({
+	name = "notify-toast",
+	match = { class = "flex-notify-toast" },
+	float = true,
+	size = { 480, 80 },
+	move = { 2064, 52 },
+	nofocus = true,
+	noborder = true,
+	noshadow = true,
+	noblur = true,
+	pin = true,
+})
+
 -- A fullscreen game holding an active pointer constraint suppresses the
 -- initial focus of any new window (Window.cpp: `!isConstrained()`), so the
 -- popup opens unfocused and keystrokes keep reaching the game. Re-focus flex
