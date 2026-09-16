@@ -93,8 +93,8 @@
   },
   "custom/recording": {
     "format": "{}",
-    "exec": "~/.config/waybar/recording-status.sh",
-    "on-click": "~/.config/waybar/recording-stop.sh",
+    "exec": "~/.local/bin/flex-record status",
+    "on-click": "~/.local/bin/flex-record stop",
     "interval": 2,
     "tooltip": false
   },
