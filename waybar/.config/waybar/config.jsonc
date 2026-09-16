@@ -87,10 +87,11 @@
   },
   "custom/net-speed": {
     "format": "{}",
-    "exec": "$HOME/.local/bin/flex-net",
+    "exec": "$HOME/.local/bin/flex-net --json",
     "interval": 2,
     "return-type": "json",
-    "tooltip": false
+    "tooltip": true,
+    "on-click": "$HOME/.local/bin/flex-net"
   },
   "custom/recording": {
     "format": "{}",
