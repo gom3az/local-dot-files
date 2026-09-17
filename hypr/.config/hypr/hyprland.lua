@@ -314,13 +314,13 @@ hl.window_rule({
 })
 
 -- Transient notification toast: top-right corner, no focus steal, no borders.
--- Width=480 (~60 chars at 11pt), Height=80 (3 lines).  X=2560-480-16=2064, Y=52.
+-- Width=500 (~50 chars at 11pt), Height=96 (5 rows with vertical padding). X=2560-500-16=2044, Y=52.
 hl.window_rule({
 	name = "notify-toast",
 	match = { class = "flex-notify-toast" },
 	float = true,
-	size = { 480, 80 },
-	move = { 2064, 52 },
+	size = { 500, 96 },
+	move = { 2044, 52 },
 	no_focus = true,
 	no_initial_focus = true,
 	border_size = 0,

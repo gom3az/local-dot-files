@@ -24,6 +24,18 @@ cd ~/dotfiles
 stow hypr kitty nvim scripts themes tmux waybar zsh
 ```
 
+## Notification Daemon (`flex-notify`)
+
+`flex-notify` runs as a systemd user daemon providing `org.freedesktop.Notifications`:
+
+```bash
+# Systemd user service unit: ~/.config/systemd/user/flex-notify.service
+# DBus service file: ~/.local/share/dbus-1/services/org.freedesktop.Notifications.service
+
+systemctl --user daemon-reload
+systemctl --user enable --now flex-notify.service
+```
+
 ## Commands
 
 ```bash
