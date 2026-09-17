@@ -84,7 +84,8 @@
       "performance": "",
       "balanced": "",
       "power-saver": ""
-    }
+    },
+    "on-click": "$HOME/.local/bin/flex-profile"
   },
   "custom/net-speed": {
     "format": "{}",
