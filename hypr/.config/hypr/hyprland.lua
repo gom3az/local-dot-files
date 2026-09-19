@@ -61,15 +61,20 @@ local fileManager = "dolphin"
 -------------------
 
 hl.on("hyprland.start", function()
+	-- Plain hyprland.desktop session (no uwsm: DESKTOP_SESSION=hyprland), so
+	-- the DBus/systemd environment import below is load-bearing — keep it.
 	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE")
 	hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE")
 	hl.exec_cmd("systemctl --user start graphical-session.target")
-	hl.exec_cmd("systemctl --user start xdg-desktop-portal")
+	-- xdg-desktop-portal is socket-activated; no explicit start needed.
 	hl.exec_cmd("waybar")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("wl-paste --watch $HOME/.local/bin/flex-clip add")
-	hl.exec_cmd("$HOME/.local/bin/flex-notify daemon")
+	-- flex-notify is owned by its systemd user unit (Type=dbus,
+	-- BusName=org.freedesktop.Notifications, WantedBy=graphical-session.target),
+	-- started via graphical-session.target above — not launched here, or two
+	-- daemons fight over the bus name (and the loser lingers as a stray).
 	-- Default to high-quality A2DP (switch the card profile to headset when the mic is needed)
 	hl.exec_cmd("sleep 2 && pactl set-card-profile alsa_card.pci-0000_12_00.6 off; pactl set-card-profile bluez_card.5C_DC_49_8F_03_26 a2dp-sink || true")
 end)
@@ -179,11 +184,19 @@ hl.config({
 		kb_layout = "us,ara",
 		kb_options = "grp:alt_shift_toggle",
 		follow_mouse = 1,
+		mouse_refocus = false,
+		float_switch_override_focus = 0,
 		sensitivity = 0,
 
 		touchpad = {
 			natural_scroll = false,
 		},
+	},
+})
+
+hl.config({
+	cursor = {
+		no_warps = true,
 	},
 })
 
@@ -204,7 +217,6 @@ hl.bind(
 )
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("$HOME/.local/bin/flex-center"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("$HOME/.local/bin/flex-wallpaper"))
