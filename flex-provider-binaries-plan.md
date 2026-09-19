@@ -329,8 +329,7 @@ writable stderr.
 - **Theme / `set-wallpaper.sh` ports fork tested behaviour.** Parity-prove each behind the existing
   stub seams (`THEME_SWITCHER`, `SET_WALLPAPER`) before cutover, in the same commit.
 - **`set-wallpaper.sh` is not small**: `socat` to the hyprpaper socket, a `pgrep -x` liveness probe,
-  a restart path, a `hyprpaper.conf` rewrite, the ML4W cache write, and paired `swaync-client`
-  inhibitor calls. Port it verbatim and keep a parity test on the conf bytes it writes.
+  a restart path, a `hyprpaper.conf` rewrite, and the ML4W cache write. Port it verbatim and keep a parity test on the conf bytes it writes.
 - **"Zero bash at runtime" is really "zero bash in the flex call path."** State it that way.
 - **Revisited frozen items**: convention #1 (the *engine* still never executes — executors are rice
   code), B-021 resolvers (internalised as library functions), B-004 shellcheck gate (retired with

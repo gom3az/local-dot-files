@@ -99,7 +99,7 @@ flex-theme activate tokyo-night
 |---|---|
 | `SUPER+W` | Open wallpaper picker (`flex wallpaper` in kitty) — sets the image only, theme unchanged |
 | `SUPER+T` | Open theme switcher (flex) |
-| `SUPER+N` | Toggle swaync notification panel |
+| `SUPER+N` | Toggle notification center (flex notify) |
 | `SUPER+SHIFT+V` | Browse clipboard history (flex) |
 | `SUPER+SHIFT+Esc` | Kill a process (`flex proc` process manager) |
 | `SUPER+R` / `SUPER+Space` | Launch app launcher (flex) |
