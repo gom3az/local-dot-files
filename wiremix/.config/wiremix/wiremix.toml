@@ -1,0 +1,10 @@
+# wiremix config — merged over wiremix's built-in defaults.
+# Full reference: /usr/share/doc/wiremix/wiremix.toml
+
+# Esc exits the mixer, like every other flex popup (q still works).
+# Trade-off: this replaces wiremix's default Esc = CloseDropdown binding,
+# so an open dropdown is confirmed with Enter/c (or the mouse) instead of
+# cancelled with Esc.
+keybindings = [
+  { key = "Esc", action = "Exit" },
+]

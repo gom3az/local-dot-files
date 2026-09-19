@@ -14,6 +14,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `tmux` | `~/.tmux`, `~/.tmux.conf` |
 | `scripts` | `~/.config/scripts` |
 | `waybar` | `~/.config/waybar` |
+| `wiremix` | `~/.config/wiremix` |
 | `zsh` | `~/.zshrc` |
 
 ## Setup on a new machine
@@ -21,7 +22,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/).
 ```bash
 git clone <repo-url> ~/dotfiles
 cd ~/dotfiles
-stow hypr kitty nvim scripts themes tmux waybar zsh
+stow hypr kitty nvim scripts themes tmux waybar wiremix zsh
 ```
 
 ## Notification Daemon (`flex-notify`)
