@@ -5,36 +5,51 @@
 -- Load dynamic theme (auto-generated from wallpaper)
 -- Returns a theme table with .colors and .tokens subtables
 local function load_theme(path)
-    local f = io.open(path, "r")
-    if f then
-        f:close()
-        return dofile(path)
-    end
-    return nil
+	local f = io.open(path, "r")
+	if f then
+		f:close()
+		return dofile(path)
+	end
+	return nil
 end
 
 local function default_theme()
-    return {
-        colors = {
-            mauve = "EE96A6", blue = "F28A99", red = "dcdcff", green = "ffd1f9",
-            yellow = "cae2ff", teal = "f0dae3", pink = "f0d7f4",
-            surface0 = "24201b", surface1 = "3c3834", surface2 = "595552",
-            overlay0 = "75726f", overlay1 = "918f8d", overlay2 = "acaaa8",
-            subtext0 = "6e6c69", subtext1 = "8b8986", text = "c3c2c1",
-            background = "120d08", foreground = "c3c2c1", cursor = "c3c2c1",
-            crust = "110c07", mantle = "110c07", base = "120d08",
-        },
-        rgba = function(hex, alpha)
-            alpha = alpha or "ee"
-            return "rgba(" .. hex .. alpha .. ")"
-        end,
-    }
+	return {
+		colors = {
+			mauve = "EE96A6",
+			blue = "F28A99",
+			red = "dcdcff",
+			green = "ffd1f9",
+			yellow = "cae2ff",
+			teal = "f0dae3",
+			pink = "f0d7f4",
+			surface0 = "24201b",
+			surface1 = "3c3834",
+			surface2 = "595552",
+			overlay0 = "75726f",
+			overlay1 = "918f8d",
+			overlay2 = "acaaa8",
+			subtext0 = "6e6c69",
+			subtext1 = "8b8986",
+			text = "c3c2c1",
+			background = "120d08",
+			foreground = "c3c2c1",
+			cursor = "c3c2c1",
+			crust = "110c07",
+			mantle = "110c07",
+			base = "120d08",
+		},
+		rgba = function(hex, alpha)
+			alpha = alpha or "ee"
+			return "rgba(" .. hex .. alpha .. ")"
+		end,
+	}
 end
 
 local home = os.getenv("HOME")
 local theme = load_theme(home .. "/.config/hypr/theme.lua")
-            or load_theme(home .. "/.config/hypr/colors.lua")
-            or default_theme()
+	or load_theme(home .. "/.config/hypr/colors.lua")
+	or default_theme()
 
 -- See https://wiki.hypr.land/Configuring/Start/
 
@@ -76,7 +91,9 @@ hl.on("hyprland.start", function()
 	-- started via graphical-session.target above — not launched here, or two
 	-- daemons fight over the bus name (and the loser lingers as a stray).
 	-- Default to high-quality A2DP (switch the card profile to headset when the mic is needed)
-	hl.exec_cmd("sleep 2 && pactl set-card-profile alsa_card.pci-0000_12_00.6 off; pactl set-card-profile bluez_card.5C_DC_49_8F_03_26 a2dp-sink || true")
+	hl.exec_cmd(
+		"sleep 2 && pactl set-card-profile alsa_card.pci-0000_12_00.6 off; pactl set-card-profile bluez_card.5C_DC_49_8F_03_26 a2dp-sink || true"
+	)
 end)
 
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
@@ -108,7 +125,10 @@ hl.config({
 		border_size = 2,
 
 		col = {
-			active_border = { colors = { theme.rgba(theme.colors.mauve, "ee"), theme.rgba(theme.colors.blue, "ee") }, angle = 45 },
+			active_border = {
+				colors = { theme.rgba(theme.colors.mauve, "ee"), theme.rgba(theme.colors.blue, "ee") },
+				angle = 45,
+			},
 			inactive_border = theme.rgba(theme.colors.surface1, "aa"),
 		},
 
@@ -211,10 +231,7 @@ hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())
-hl.bind(
-	mainMod .. " + M",
-	hl.dsp.exec_cmd("$HOME/.local/bin/flex-power")
-)
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("$HOME/.local/bin/flex-power"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
@@ -226,6 +243,7 @@ hl.bind(mainMod .. " + SHIFT + " .. "V", hl.dsp.exec_cmd("$HOME/.local/bin/flex-
 hl.bind(mainMod .. " + SHIFT + " .. "P", hl.dsp.exec_cmd("$HOME/.local/bin/flex-clip pin"))
 hl.bind(mainMod .. " + SHIFT + " .. "Escape", hl.dsp.exec_cmd("$HOME/.local/bin/flex-proc"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("$HOME/.local/bin/flex-mixer"))
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"))
 hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }))

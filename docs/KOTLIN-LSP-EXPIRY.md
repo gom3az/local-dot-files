@@ -18,9 +18,15 @@ Please download a new build from https://www.jetbrains.com/intellij-server/
 `kotlin-lsp` is IntelliJ packaged as an LSP server (`intellij-server`). Like all
 IntelliJ EAP/preview builds it carries a hard-coded ~30-day evaluation expiry,
 independent of Mason. Reinstalling via `:Mason` does not help while the Mason
-registry and upstream are pinned to the same build — verified 2026-09-08 with
-`kotlin-server-262.9593.0` (released 2026-07-27, still `Latest` at
-`github.com/Kotlin/kotlin-lsp/releases`). 43 days old = expired.
+registry and upstream are pinned to the same build. History:
+- 2026-09-08: `kotlin-server-262.9593.0` (released 2026-07-27, still `Latest` at
+  `github.com/Kotlin/kotlin-lsp/releases`). 43 days old = expired.
+- 2026-09-22: Mason updated to `kotlin-server-263.4702.0`
+  (`majorVersionReleaseDate=20260908`, receipt
+  `pkg:generic/Kotlin/kotlin-lsp@kotlin-lsp/v263.4702.0`). The old frozen date
+  `2026-08-15` now predates the build, so the server prints
+  `This build of kotlin-server has expired` (exit code 7) until the frozen date
+  is moved inside the new window (after 2026-09-08, before ~2026-10-08).
 
 This is a repeat of [Kotlin/kotlin-lsp#217](https://github.com/Kotlin/kotlin-lsp/issues/217)
 (`v262.4739.0`, June 2026). JetBrains documents the policy for the LSP preview as
@@ -50,17 +56,17 @@ sudo dnf install libfaketime
 
 ```lua
 vim.lsp.config('kotlin-lsp', {
-  -- WORKAROUND 2026-09-08: kotlin-server-262.9593.0 (Jul 27) is expired;
-  -- intellij-server quits after its 30-day EAP period. Freeze its clock
-  -- until JetBrains ships a new build. See Kotlin/kotlin-lsp#217.
-  cmd = { 'faketime', '2026-08-15 12:00:00', 'intellij-server', '--stdio' },
+  -- WORKAROUND 2026-09-22: kotlin-server-263.4702.0 (Sep 08) expires
+  -- ~30d after build. Freeze its clock inside the validity window
+  -- until JetBrains ships a new build. See Kotlin/kotlin-lsp#217/#271.
+  cmd = { 'faketime', '2026-09-15 12:00:00', 'intellij-server', '--stdio' },
 ```
 
 Verify:
 
 ```bash
 export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
-timeout 20 faketime '2026-08-15 12:00:00' intellij-server --stdio </dev/null 2>&1 | head -n 10
+timeout 20 faketime '2026-09-15 12:00:00' intellij-server --stdio </dev/null 2>&1 | head -n 10
 # healthy: 4 startup lines, no "has expired" message
 ```
 

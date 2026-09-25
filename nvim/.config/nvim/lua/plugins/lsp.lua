@@ -47,12 +47,15 @@ vim.lsp.config('stylua', {
 vim.lsp.enable('stylua')
 
 vim.lsp.config('kotlin-lsp', {
-  -- WORKAROUND 2026-09-08: kotlin-server-262.9593.0 (Jul 27) is expired;
-  -- intellij-server quits after its 30-day EAP period. Freeze its clock
-  -- until JetBrains ships a new build. See Kotlin/kotlin-lsp#217.
-  cmd = { 'faketime', '2026-08-15 12:00:00', 'intellij-server', '--stdio' },
+  -- WORKAROUND 2026-09-22: kotlin-server-263.4702.0 (Sep 08) expires
+  -- ~30d after build. Freeze its clock inside the validity window
+  -- until JetBrains ships a new build. See Kotlin/kotlin-lsp#217/#271.
+  -- WORKAROUND 2026-09-24: JBR-25 C2 SIGSEGV in
+  -- ConnectionGraph::split_unique_types compiling
+  -- RootKindMatcherImpl::matches. -XX:-DoEscapeAnalysis bypasses it.
+  cmd = { 'faketime', '2026-09-15 12:00:00', 'intellij-server', '--stdio' },
   cmd_env = {
-    IJ_JAVA_OPTIONS = '-Didea.config.path='
+    IJ_JAVA_OPTIONS = '-XX:-DoEscapeAnalysis -Didea.config.path='
       .. vim.fn.stdpath('data')
       .. '/kotlin-lsp/config -Didea.system.path='
       .. vim.fn.stdpath('data')

@@ -20,6 +20,7 @@
     "tray",
     "network",
     "custom/net-speed",
+    "custom/bt",
     "pulseaudio",
     "clock",
     "power-profiles-daemon",
@@ -41,7 +42,7 @@
   },
   "pulseaudio": {
     "format": "{icon}  {volume}%  {desc}",
-    "format-bluetooth": "{icon}  {volume}%  {desc}",
+    "format-bluetooth": "{icon}  {volume}%",
     "format-muted": "  {desc}",
     "tooltip-format": "{desc}\nVolume: {volume}%",
     "format-icons": {
@@ -72,6 +73,14 @@
     "return-type": "json",
     "tooltip": true,
     "on-click": "$HOME/.local/bin/flex net"
+  },
+  "custom/bt": {
+    "format": "{}",
+    "exec": "$HOME/.local/bin/flex-bt --status",
+    "interval": 5,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "$HOME/.local/bin/flex bt"
   },
   "custom/recording": {
     "format": "{}",

@@ -31,9 +31,9 @@ window#waybar {
 #pulseaudio {
     color: @text;
     background-color: @surface0;
-    padding: 0px 10px;
-    margin: 4px;
-    border-bottom: 2px solid @blue;
+    padding: 0px 10px 0px 8px;
+    margin: 4px 4px 4px 0px;
+    border-bottom: 2px solid @sky;
 }
 
 #network {
@@ -67,6 +67,15 @@ window#waybar {
     padding: 0px 10px;
     margin: 4px;
     border-bottom: 2px solid @sapphire;
+}
+
+/* ---------- Bluetooth (left half of the audio pill) ---------- */
+#custom-bt {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 8px 0px 10px;
+    margin: 4px 0px 4px 4px;
+    border-bottom: 2px solid @sky;
 }
 
 /* ---------- Recording indicator ---------- */
