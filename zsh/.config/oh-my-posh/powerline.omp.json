@@ -1,0 +1,78 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "palette": {
+    "surface0": "#313244",
+    "text": "#cdd6f4",
+    "peach": "#fab387",
+    "mantle": "#181825",
+    "green": "#a6e3a1",
+    "base": "#1e1e2e",
+    "red": "#f38ba8"
+  },
+  "blocks": [
+    {
+      "alignment": "left",
+      "segments": [
+        {
+          "background": "p:surface0",
+          "foreground": "p:text",
+          "leading_diamond": "",
+          "style": "diamond",
+          "template": "{{ .Icon }} ",
+          "type": "os"
+        },
+        {
+          "background": "p:surface0",
+          "foreground": "p:text",
+          "style": "powerline",
+          "powerline_symbol": "",
+          "template": "{{ .UserName }} ",
+          "type": "session"
+        },
+        {
+          "background": "p:peach",
+          "foreground": "p:mantle",
+          "properties": {
+            "home_icon": "~",
+            "style": "agnoster_short"
+          },
+          "style": "powerline",
+          "powerline_symbol": "",
+          "template": " {{ .Path }} ",
+          "type": "path"
+        },
+        {
+          "background": "p:green",
+          "foreground": "p:base",
+          "properties": {
+            "branch_icon": " ",
+            "fetch_status": false
+          },
+          "style": "diamond",
+          "template": " {{ .HEAD }} ",
+          "trailing_diamond": "",
+          "type": "git"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "p:green",
+          "foreground_templates": [
+            "{{ if gt .Code 0 }}#f38ba8{{ end }}"
+          ],
+          "style": "plain",
+          "template": "",
+          "type": "text"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "final_space": true,
+  "version": 3
+}

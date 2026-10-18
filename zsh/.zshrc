@@ -23,13 +23,9 @@ bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
 
 # =========================================
-# Prompt Engine
+# Prompt Engine (Oh My Posh)
 # =========================================
-# If you want to keep Oh My Posh:
-# eval "$(oh-my-posh init zsh --config /home/test/.cache/oh-my-posh/themes/agnoster.omp.json)"
-
-# OR, if you want to try Starship (it's faster in Zsh):
-eval "$(starship init zsh)"
+eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/powerline.omp.json)"
 
 # =========================================
 # Sourcing bash-style fragments
@@ -93,7 +89,3 @@ setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks before saving
 # ==========================
 
 eval "$(zoxide init --cmd cd zsh)"
-
-
-# Added by Antigravity CLI installer
-export PATH="/home/test/.local/bin:$PATH"
