@@ -31,9 +31,21 @@ window#waybar {
 #pulseaudio {
     color: @text;
     background-color: @surface0;
-    padding: 0px 10px 0px 8px;
+    padding: 0px 8px;
+    margin: 4px 0px;
+    border-bottom: 2px solid @sky;
+}
+
+#pulseaudio.mic {
+    color: @text;
+    background-color: @surface0;
+    padding: 0px 10px 0px 6px;
     margin: 4px 4px 4px 0px;
     border-bottom: 2px solid @sky;
+}
+
+#pulseaudio.mic.source-muted {
+    color: @overlay1;
 }
 
 #network {
@@ -69,13 +81,29 @@ window#waybar {
     border-bottom: 2px solid @sapphire;
 }
 
-/* ---------- Bluetooth (left half of the audio pill) ---------- */
+/* ---------- Bluetooth (left segment of the audio pill) ---------- */
 #custom-bt {
     color: @text;
     background-color: @surface0;
     padding: 0px 8px 0px 10px;
     margin: 4px 0px 4px 4px;
     border-bottom: 2px solid @sky;
+}
+
+/* ---------- Privacy (active mic capture / screenshare) ---------- */
+#privacy {
+    background-color: @surface0;
+    padding: 0px 8px;
+    margin: 4px;
+    border-bottom: 2px solid @green;
+}
+
+#privacy-item.audio-in {
+    color: @green;
+}
+
+#privacy-item.screenshare {
+    color: @peach;
 }
 
 /* ---------- Recording indicator ---------- */
@@ -176,6 +204,10 @@ tooltip label {
 }
 
 /* ---------- Tray ---------- */
+#tray > * {
+    padding: 0 3px;
+}
+
 #tray > .passive {
     -gtk-icon-effect: dim;
 }

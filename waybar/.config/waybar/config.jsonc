@@ -16,17 +16,39 @@
   "modules-center": [
   ],
   "modules-right": [
+    "privacy",
     "custom/recording",
     "tray",
     "network",
     "custom/net-speed",
     "custom/bt",
     "pulseaudio",
+    "pulseaudio#mic",
     "clock",
     "power-profiles-daemon",
     "custom/notification",
     "custom/power"
   ],
+  "privacy": {
+    "icon-spacing": 6,
+    "icon-size": 14,
+    "transition-duration": 250,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 18
+      },
+      {
+        "type": "audio-in",
+        "tooltip": true,
+        "tooltip-icon-size": 18
+      }
+    ]
+  },
+  "tray": {
+    "spacing": 8
+  },
   "clock": {
     "format": "   {:%a %d %H:%M}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
@@ -44,7 +66,7 @@
     "format": "{icon}  {volume}%  {desc}",
     "format-bluetooth": "{icon}  {volume}%",
     "format-muted": "  {desc}",
-    "tooltip-format": "{desc}\nVolume: {volume}%",
+    "tooltip-format": "{desc}\nVolume: {volume}%\nRight-click to toggle mic mute",
     "format-icons": {
       "default": [
         "",
@@ -53,7 +75,16 @@
       ]
     },
     "max-length": 45,
-    "on-click": "$HOME/.local/bin/flex-mixer"
+    "on-click": "$HOME/.local/bin/flex-mixer",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+  },
+  "pulseaudio#mic": {
+    "format": "{format_source}",
+    "format-source": "󰍬",
+    "format-source-muted": "󰍭",
+    "tooltip-format": "Microphone: {source_desc} ({source_volume}%)\nClick to toggle mute",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
   },
   "power-profiles-daemon": {
     "format": "{icon}",

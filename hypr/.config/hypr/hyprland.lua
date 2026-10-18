@@ -225,6 +225,8 @@ hl.config({
 ---------------------
 
 local mainMod = "SUPER"
+local toggleMicCmd =
+	'wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle && (wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED && notify-send -r 9910 -a System -u low "󰍭 Microphone Muted" "Audio input is disabled" || notify-send -r 9910 -a System -u low "󰍬 Microphone Active" "Audio input is enabled")'
 hl.bind(mainMod .. " + s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-shot"))
 hl.bind(mainMod .. " + SHIFT + " .. "s", hl.dsp.exec_cmd("$HOME/.local/bin/flex-record stop"))
 hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
@@ -232,6 +234,7 @@ hl.bind(mainMod .. " + SHIFT + " .. "l", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("$HOME/.local/bin/flex-power"))
+hl.bind(mainMod .. " + SHIFT + " .. "M", hl.dsp.exec_cmd(toggleMicCmd))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("$HOME/.local/bin/flex-launch"))
@@ -278,7 +281,7 @@ hl.bind(
 )
 hl.bind(
 	"XF86AudioMicMute",
-	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
+	hl.dsp.exec_cmd(toggleMicCmd),
 	{ locked = true, repeating = true }
 )
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
